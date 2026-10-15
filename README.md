@@ -188,6 +188,8 @@ Executes 15 reproducible trials comparing the WALL-E Agent against a blind front
 
 ### 5. Launch Interactive Dashboard (Optional Bonus)
 ```powershell
+.\.venv\Scripts\python.exe -m streamlit run app.py
+# or (if your virtual environment Scripts folder is in PATH):
 streamlit run app.py
 ```
 
