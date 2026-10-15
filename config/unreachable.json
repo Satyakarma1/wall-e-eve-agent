@@ -1,0 +1,23 @@
+{
+  "grid_size": [10, 10],
+  "start_pos": [0, 0],
+  "eve_pos": [9, 9],
+  "obstacles": [
+    [7, 9], [7, 8], [7, 7], [8, 7], [9, 7]
+  ],
+  "clues": [
+    { "pos": [4, 4], "type": "directional_beacon", "noise_sigma": 0.0 }
+  ],
+  "resources": {
+    "initial_battery": 60.0,
+    "max_steps": 100,
+    "scan_budget": 3,
+    "action_costs": {
+      "move": 1.0,
+      "inspect": 2.0,
+      "scan": 4.0,
+      "terminate": 0.0
+    }
+  },
+  "random_seed": 77
+}
