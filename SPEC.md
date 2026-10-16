@@ -4,7 +4,7 @@
 - **Project Name**: WALL-E & EVE's Signal — Autonomous AI Agent
 - **Target Platform**: Windows 11 / Python 3.11 / VS Code / PowerShell
 - **Purpose**: Autonomous exploration agent inspired by WALL-E searching for EVE across a contaminated wasteland grid.
-- **Core Design Philosophy**: Complete separation of hidden environment state from the agent's observation space. Transparent, explainable decision-making (Observe-Decide-Act loop), Bayesian belief modeling, A* pathfinding, and rigorous automated testing.
+- **Core Design Philosophy**: Complete separation of hidden environment state from the agent's observation space. Transparent, explainable decision-making (Observe-Decide-Act loop), Bayesian belief modeling over location and operational status, A* pathfinding, solar dock recharging, spoofed beacon filtering, and rigorous automated testing (52/52 passing).
 
 ---
 
@@ -24,24 +24,26 @@
 |  (src/environment.py) |                           |  (src/agent.py)   |
 |                       |                           |                   |
 | - Hidden Ground Truth |     Observation Dict      | - Internal Map    |
-|   (EVE position, etc) |-------------------------->| - A* Pathfinding  |
-| - Boundary & Obstacles|                           | - Belief State    |
-| - Resource Depletion  |<--------------------------| - Decision Policy |
-| - Collision Checks    |        Action Request     | - Strategy Trace  |
+|   (EVE pos & status)  |-------------------------->| - A* Pathfinding  |
+| - Boundary & Obstacles|                           | - Joint Belief    |
+| - Solar Charging Docks|<--------------------------| - Decision Policy |
+| - Resource Depletion  |        Action Request     | - Strategy Trace  |
+| - Decoy Spoofed Clues |   (MOVE, SCAN, RECHARGE)  | - Energy Safety   |
 +-----------------------+                           +-------------------+
           |                                                   |
           +-------------------------+-------------------------+
                                     |
                                     v
-+-----------------------------------+-----------------------------------+
++-----------------------------------------------------------------------+
 |                       Outputs & Visualization                         |
-|                       (src/visualization.py)                          |
-|                       (src/metrics.py)                                |
+|                (src/visualization.py, src/replay_player.py)           |
+|                (src/metrics.py, src/report.py)                        |
 |                                                                       |
 | - Static Path & Strategy Map (.png)                                   |
-| - Animated Mission GIF (.gif)                                         |
-| - Multi-seed Benchmark Metrics & Plots                                |
-| - Optional Streamlit Dashboard (app.py)                               |
+| - Animated Mission GIF (.gif) & Interactive HTML Player (.html)       |
+| - Multi-seed Generalization Benchmark (4 conditions x 3 agents)       |
+| - Structured Markdown Mission Reports (.md) & Trace JSON (.json)      |
+| - Streamlit Interactive Dashboard (app.py)                            |
 +-----------------------------------------------------------------------+
 ```
 
@@ -56,117 +58,94 @@
   - `1`: Impassable Obstacle / Debris pile
 - **Special Entities**:
   - `Start`: Initial WALL-E coordinate $(r_0, c_0)$.
-  - `Clues`: Set of Directive signal beacons $\{k_i: (r_i, c_i)\}$.
-  - `EVE`: True hidden target coordinate $(r^*, c^*)$.
+  - `Docks`: Solar charging docks where `RECHARGE` restores battery.
+  - `Clues`: Directive signal beacons (genuine or spoofed decoys).
+  - `EVE`: True hidden target coordinate $(r^*, c^*)$ and operational state (`ACTIVE` / `DORMANT`).
 
 ### 3.2 Information Boundary (Hidden vs Observable)
 - **Hidden State** (Environment only):
-  - True coordinate of EVE.
+  - True coordinate and status of EVE (`_eve_pos`, `_eve_status`).
   - Global unobserved obstacles (revealed only as WALL-E explores or scans).
-  - Raw clue payload (revealed only upon inspection).
+  - Raw clue payload and spoof targets (revealed only upon inspection).
 - **Observable State** (Agent receives):
   - Agent current coordinate $(r, c)$.
-  - Local visibility (cardinal/diagonal neighboring cells within radius $R_{local} = 1$).
-  - Remaining battery / energy.
-  - Remaining scan budget.
-  - Mission step counter.
+  - Local visibility (cardinal/diagonal neighboring cells within radius $R_{local} = 1$, Chebyshev $\le 1$).
+  - Remaining battery / energy and step counter.
+  - Charging docks list and remaining scan budget.
   - Clue detection event (if at or adjacent to a clue).
   - Inspection payload (only returned when executing `INSPECT` at a clue cell).
 
 ### 3.3 Action Space & Costs
 | Action | Description | Battery Cost | Condition / Effect |
-| :--- | :--- | :--- | :--- |
+| :--- | :--- | :---: | :--- |
 | `MOVE_UP` | Move to $(r-1, c)$ | 1.0 unit | Blocked if boundary or obstacle; consumes cost regardless |
 | `MOVE_DOWN` | Move to $(r+1, c)$ | 1.0 unit | Blocked if boundary or obstacle; consumes cost regardless |
 | `MOVE_LEFT` | Move to $(r, c-1)$ | 1.0 unit | Blocked if boundary or obstacle; consumes cost regardless |
 | `MOVE_RIGHT` | Move to $(r, c+1)$ | 1.0 unit | Blocked if boundary or obstacle; consumes cost regardless |
-| `INSPECT` | Inspect clue at current cell | 2.0 units | Decodes directional vector and distance estimate to EVE |
-| `SCAN` | Deep radar/radio pulse | 4.0 units | Measures omnidirectional signal distance with sensor noise $\sigma_{scan}$ |
-| `TERMINATE` | Agent halts mission | 0.0 units | Declares target unreachable or mission complete |
+| `INSPECT` | Inspect clue at current cell | 2.0 units | Decodes directional vector and distance estimate |
+| `SCAN` | Omnidirectional radar pulse | 4.0 units | Measures radial distance and signal amplitude (must be $\ge 3$ cells from prior scan) |
+| `RECHARGE` | Solar dock recharge | 0.0 units | Restores $+25.0$ battery up to capacity when on a dock; no-op elsewhere |
+| `TERMINATE` | Agent halts mission | 0.0 units | Aborts when reachable belief mass $< 5\%$ (`EVE_UNREACHABLE`) |
 
 ### 3.4 Terminal Conditions
 1. **SUCCESS**: WALL-E reaches EVE's true coordinate $(r^*, c^*)$.
 2. **FAILURE_BATTERY**: Battery drops to $\le 0$ before reaching EVE.
 3. **FAILURE_TIMEOUT**: Step count exceeds `max_steps`.
-4. **FAILURE_UNREACHABLE**: Agent mathematically proves all candidate target cells in its belief distribution are unreachable due to obstacle enclosures.
+4. **TERMINATED_BY_AGENT**: Agent detects target is blocked/unreachable (`EVE_UNREACHABLE`).
 
 ---
 
 ## 4. Agent Internal Design & Algorithms
 
 ### 4.1 Belief State Representation (`src/belief.py`)
-- Represents a 2D probability grid $B(r, c) = P(\text{EVE} = (r, c))$.
-- **Prior**: Uniform over all non-obstacle cells:
-  $$B_0(r, c) = \frac{1}{|\text{Free Cells}|}$$
-- **Zero Evidence**: Whenever a cell $(r, c)$ is visited and EVE is not present, $B(r, c) \leftarrow 0$.
-- **Clue Observation Likelihood**:
-  - Clue provides estimated distance $\hat{d}$ and direction $\vec{u}$.
-  - Likelihood model:
-    $$L(r, c \mid \hat{d}, \sigma) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(\| (r, c) - (r_{clue}, c_{clue}) \| - \hat{d})^2}{2\sigma^2}\right)$$
-  - Directional weighting: $\max(0, \cos(\theta_{(r,c)} - \theta_{clue}))$.
-- **Bayes Update**:
-  $$B_{t+1}(r, c) = \frac{B_t(r, c) \cdot L(r, c)}{\sum_{u, v} B_t(u, v) \cdot L(u, v)}$$
-- **Uncertainty Metric**: Shannon Entropy $H(B) = -\sum_{r,c} B(r, c) \log_2(B(r, c) + \epsilon)$.
+- Represents a 2D joint posterior grid in log space:
+  $$B(r, c, s) = P(\text{EVE} = (r, c), \text{Status} = s)$$
+  for $s \in \{\text{ACTIVE}, \text{DORMANT}\}$.
+- **Prior**: Initial signal reading with age-dependent bearing spread.
+- **Camera Pruning**: Visited free cells without EVE receive $B(r, c, \cdot) \leftarrow 0$.
+- **Decoy-Robust Reliability Mixture**:
+  $$L_{\text{beacon}}(r, c) = 0.8 \cdot L_{\text{genuine}}(r, c) + 0.2 \cdot U$$
+  Beacons with $P(\text{genuine}) < 0.20$ are rejected as decoys.
+- **Signal Amplitude**: Distinguishes `ACTIVE` from `DORMANT` status via radar pulse amplitude ($1.0$ vs $0.5$).
+- **Entropy Tracking**: Shannon Entropy $H(B) = -\sum_{r,c,s} B(r, c, s) \log_2(B(r, c, s) + \epsilon)$.
 
 ### 4.2 Pathfinding (`src/pathfinding.py`)
-- Classical $A^*$ algorithm using Manhattan distance heuristic:
-  $$h(n) = |r_n - r_{goal}| + |c_n - c_{goal}|$$
-- Dynamically checks known obstacles.
-- If path cannot be found (goal is partitioned by obstacles), returns `None`, allowing agent to detect unreachable candidates.
+- Classical $A^*$ search with Manhattan heuristic, breaking ties towards straight lines.
+- Dynamic obstacle map updated upon local sensing.
+- Reachability analysis via BFS to identify connected traversable components.
 
 ### 4.3 Hierarchical Strategy Engine (`src/agent.py`)
-- Explainable Finite State Machine:
-  1. `EXPLORE_FOR_CLUES`: Moves along unvisited frontiers towards promising signal areas.
-  2. `ACQUIRE_CLUE`: Navigates directly via $A^*$ to discovered clue, executes `INSPECT`.
-  3. `HUNT_BELIEF_TARGET`: Selects highest-probability candidate $\arg\max_{(r, c)} B(r, c)$, plans $A^*$ route.
-  4. `PULSE_SCAN`: When trapped in multimodal belief or high entropy, triggers deep `SCAN`.
-  5. `ABORT_UNREACHABLE`: Triggered when battery budget is insufficient or all candidate cells are blocked.
-
-### 4.4 Action Trace Log
-Every step produces an explainable trace entry:
-```json
-{
-  "step": 12,
-  "position": [4, 7],
-  "action": "MOVE_RIGHT",
-  "reason": "Following A* waypoint to inspect discovered clue at (4, 8)",
-  "strategy": "ACQUIRE_CLUE",
-  "battery": 82.0,
-  "top_candidate": [10, 10],
-  "top_candidate_prob": 0.421,
-  "belief_entropy": 2.14
-}
-```
+Priority tiers:
+1. `RECHARGE_AT_DOCK`: At dock with battery $< \text{capacity}$.
+2. `TURN_BACK_FOR_ENERGY`: Battery $< \text{trip\_to\_dock} + \text{reserve}$.
+3. `ACQUIRE_CLUE`: Navigate to discovered uninspected beacon.
+4. `TRIANGULATE_SCAN`: Radar pulse from new vantage point ($\ge 3$ cells apart).
+5. `HUNT_BELIEF_TARGET`: Navigate to top candidate $\arg\max B(r, c)$.
+6. `EXPLORE_FOR_CLUES`: Frontier-based exploration.
+7. `ABORT_UNREACHABLE`: Abort if reachable candidate mass $< 0.05$.
 
 ---
 
 ## 5. Visualizations & Evaluation Metrics
 
 ### 5.1 Visual Artifacts
-1. **Static Mission Summary (`outputs/mission_summary.png`)**:
-   - High-contrast grid map with obstacles, starting marker, travelled trajectory with directional breadcrumbs, discovered clues, and EVE's location.
-   - Dual inset subplots: Battery consumption vs step, Belief entropy vs step.
-2. **Animated Mission Replay (`outputs/mission_animation.gif`)**:
-   - Frame-by-frame visualization showing WALL-E moving, fog of war clearing, clue inspection, belief heatmap shifting, and final rendezvous.
-
-### 5.2 Quantitative Metrics
-- **Mission Success Rate (%)**: Successful missions / Total missions.
-- **Path Length & Steps Taken**: Total distance travelled.
-- **Exploration Coverage (%)**: Visited free cells / Total reachable free cells.
-- **Energy Efficiency**: Energy remaining upon completion.
-- **Scan Usage**: Count of deep radar scans.
-- **Prediction Accuracy**: Distance between top candidate $\arg\max B(r,c)$ and ground truth EVE $(r^*, c^*)$ over time.
+1. **Interactive Canvas Replay (`outputs/*_replay.html`)**: Standalone HTML5 canvas player with scrubber, timeline, ripples, and decision explanation pane.
+2. **Animated Mission Replay (`outputs/*_animation.gif`)**: Frame-by-frame GIF (1 frame per step; no visual leaks).
+3. **Static Mission Summary (`outputs/*_summary.png`)**: 4-panel figure with trajectory, battery curve, entropy decay, and status inference.
+4. **Generalization Benchmark (`outputs/benchmark_generalization.png`)**: 4-condition comparative analysis.
 
 ---
 
-## 6. Acceptance Criteria
-- [x] Python 3.11 compatible, runnable on Windows PowerShell.
-- [x] Clear separation of hidden ground truth from agent observation.
-- [x] Configurable via JSON (`config/default.json`, `config/hard.json`, `config/unreachable.json`, etc.).
-- [x] $A^*$ pathfinding with obstacle avoidance.
-- [x] Bayesian belief updating and entropy tracking.
-- [x] Full action trace with explainable reasons.
-- [x] Matplotlib static summary plot and animated GIF export.
-- [x] Multi-seed statistical benchmark runner with baseline comparison.
-- [x] Automated test suite passing with high coverage (`pytest`).
-- [x] Optional Streamlit interactive dashboard (`app.py`).
+## 6. Acceptance Criteria Verification
+- [x] Python 3.11 compatible, verified on Windows PowerShell.
+- [x] Clear separation of hidden ground truth from agent observation (`MissionBriefing`).
+- [x] Configurable via JSON (`config/default.json`, `config/decoy.json`, `config/recharge.json`, etc.).
+- [x] $A^*$ pathfinding with obstacle avoidance and straight-line tie-breaking.
+- [x] Joint Bayesian belief updating over location AND status with entropy tracking.
+- [x] Decoy/spoofed signal rejection via exact posterior calculation.
+- [x] Energy management with solar dock recharging and turn-back policy.
+- [x] Full action trace JSON and Markdown mission reports.
+- [x] Interactive HTML canvas replay player, animated GIFs, and static PNG summaries.
+- [x] 60-mission generalization benchmark suite across 4 conditions and 3 agents.
+- [x] 52 of 52 automated tests passing (`pytest`).
+- [x] Interactive Streamlit dashboard (`app.py`).
