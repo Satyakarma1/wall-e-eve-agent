@@ -39,3 +39,13 @@ Thumbs.db
 
 # Project generated scratch/temp
 outputs/*.tmp
+
+# Streamlit secrets (never commit)
+.streamlit/secrets.toml
+
+# Agent tooling and private working notes (not part of the submission)
+.claude/
+.agents/
+HANDOVER.md
+WALL-E_EVE_Project_Context.md
+VinnovateIT Recruitments*.png

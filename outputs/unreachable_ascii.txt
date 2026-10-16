@@ -1,0 +1,21 @@
+WALL-E & EVE | EVE sealed behind debris
+step  20/21 | TERMINATE  | Abort: unreachable   | battery   36.0 | scans 2
+why: EVE most likely at (9, 9) (P=0.88) but only 0.0% of the belief lies in cells WALL-E can reach: debris seals he
+saw: -
+    0123456789
+  0 Dh..??????
+  1 .hh..?????
+  2 ..hh..????
+  3 ?..hh..???
+  4 ??..*h..??
+  5 ???..hh...
+  6 ????..hhh.
+  7 ?????.h###
+  8 ?????.W#??
+  9 ?????..#??
+
+strategy timeline:
+     0 ShhhhhhhhAhhhhhhhhhh!
+  (h hunt, A acquire beacon, S pulse scan, e explore, R return to charge, c complete, ! abort)
+
+outcome: TERMINATED_BY_AGENT | conclusion EVE_UNREACHABLE at (9, 9) | EVE status ACTIVE

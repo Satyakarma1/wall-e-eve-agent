@@ -1,0 +1,33 @@
+{
+  "mission_name": "Spoofed beacon on the scan ring",
+  "grid_size": [16, 16],
+  "start_pos": [0, 0],
+  "charging_stations": [[0, 0]],
+  "eve": { "pos": [4, 14], "status": "ACTIVE" },
+  "obstacles": [
+    [2, 6], [3, 6], [4, 6], [5, 6],
+    [7, 2], [7, 3], [7, 4],
+    [6, 10], [7, 10], [8, 10], [9, 10],
+    [11, 6], [11, 7], [11, 8], [12, 12], [13, 12]
+  ],
+  "clues": [
+    { "pos": [1, 1], "type": "decoy", "spoof_pos": [14, 4], "noise_sigma": 0.3, "bearing_noise_deg": 3.0 },
+    { "pos": [5, 11], "type": "directional_beacon", "noise_sigma": 0.3, "bearing_noise_deg": 3.0 }
+  ],
+  "initial_signal": {
+    "received_at": [0, 0],
+    "strength": 0.16,
+    "timestamp": "2805-07-14T05:30:00Z"
+  },
+  "mission_start": "2805-07-14T06:00:00Z",
+  "sensors": { "sensor_radius": 1, "scan_noise_sigma": 1.0, "strength_noise_sigma": 0.02 },
+  "resources": {
+    "initial_battery": 130.0,
+    "battery_capacity": 130.0,
+    "max_steps": 220,
+    "scan_budget": 3,
+    "recharge_per_action": 25.0,
+    "action_costs": { "move": 1.0, "inspect": 2.0, "scan": 4.0, "recharge": 0.0, "terminate": 0.0 }
+  },
+  "random_seed": 7
+}

@@ -3,7 +3,9 @@
 from __future__ import annotations
 import heapq
 from collections import deque
-from typing import List, Tuple, Optional, Set, Dict
+from typing import Dict, Iterable, List, Optional, Set, Tuple
+
+import numpy as np
 
 Coord = Tuple[int, int]
 
@@ -43,22 +45,27 @@ def a_star_search(
     """
     A* algorithm to find the optimal path from start to goal.
     Returns a list of coordinates including start and goal, or None if no path exists.
+    Ties between equally short routes are broken toward the straight start-goal line,
+    giving natural "staircase" paths instead of L-shapes along the map edge.
     """
     if start == goal:
         return [start]
     if goal in obstacles:
         return None
 
-    # Priority queue stores: (f_score, h_score, current_node)
-    open_set: List[Tuple[float, int, Coord]] = []
+    def cross_track(node: Coord) -> int:
+        return abs((node[0] - goal[0]) * (start[1] - goal[1]) - (start[0] - goal[0]) * (node[1] - goal[1]))
+
+    # Priority queue stores: (f_score, cross_track, h_score, current_node)
+    open_set: List[Tuple[float, int, int, Coord]] = []
     initial_h = manhattan_distance(start, goal)
-    heapq.heappush(open_set, (initial_h, initial_h, start))
+    heapq.heappush(open_set, (initial_h, 0, initial_h, start))
 
     came_from: Dict[Coord, Coord] = {}
     g_score: Dict[Coord, float] = {start: 0.0}
 
     while open_set:
-        _, _, current = heapq.heappop(open_set)
+        _, _, _, current = heapq.heappop(open_set)
 
         if current == goal:
             # Reconstruct path
@@ -77,7 +84,7 @@ def a_star_search(
                 g_score[neighbor] = tentative_g
                 h = manhattan_distance(neighbor, goal)
                 f = tentative_g + h
-                heapq.heappush(open_set, (f, h, neighbor))
+                heapq.heappush(open_set, (f, cross_track(neighbor), h, neighbor))
 
     return None
 
@@ -137,6 +144,68 @@ def get_reachable_cells(
                 queue.append(neighbor)
 
     return visited
+
+
+def bfs_tree(
+    start: Coord,
+    bounds: Tuple[int, int],
+    obstacles: Set[Coord]
+) -> Tuple[np.ndarray, Dict[Coord, Coord]]:
+    """
+    Single BFS from start: returns (distance grid, parent map).
+    Unreachable cells have distance inf. One call answers reachability, distances and paths.
+    """
+    rows, cols = bounds
+    dist = np.full((rows, cols), np.inf)
+    parent: Dict[Coord, Coord] = {}
+    if start in obstacles:
+        return dist, parent
+
+    dist[start] = 0
+    queue: deque[Coord] = deque([start])
+    while queue:
+        current = queue.popleft()
+        for neighbor in get_neighbors(current, bounds, obstacles):
+            if dist[neighbor] == np.inf:
+                dist[neighbor] = dist[current] + 1
+                parent[neighbor] = current
+                queue.append(neighbor)
+    return dist, parent
+
+
+def path_from_tree(parent: Dict[Coord, Coord], start: Coord, goal: Coord) -> Optional[List[Coord]]:
+    """Rebuild the start -> goal path from a BFS parent map (None if goal was not reached)."""
+    if goal == start:
+        return [start]
+    if goal not in parent:
+        return None
+    path = [goal]
+    while path[-1] != start:
+        path.append(parent[path[-1]])
+    path.reverse()
+    return path
+
+
+def bfs_distance_map(
+    sources: Iterable[Coord],
+    bounds: Tuple[int, int],
+    obstacles: Set[Coord]
+) -> np.ndarray:
+    """Multi-source BFS: distance from every cell to its nearest source (inf if unreachable)."""
+    rows, cols = bounds
+    dist = np.full((rows, cols), np.inf)
+    queue: deque[Coord] = deque()
+    for src in sources:
+        if src not in obstacles and dist[src] == np.inf:
+            dist[src] = 0
+            queue.append(src)
+    while queue:
+        current = queue.popleft()
+        for neighbor in get_neighbors(current, bounds, obstacles):
+            if dist[neighbor] == np.inf:
+                dist[neighbor] = dist[current] + 1
+                queue.append(neighbor)
+    return dist
 
 
 def find_nearest_frontier(

@@ -1,0 +1,26 @@
+WALL-E & EVE | Low battery: sorties from the dock
+step  86/87 | MOVE_DOWN  | Hunt belief target   | battery   24.0 | scans 0
+why: EVE sighted at (12, 11): closing in (1 moves)
+saw: -
+    01234567890123
+  0 ?????????.....
+  1 ?????????.hhh.
+  2 ????????..h#h.
+  3 ????#....hh#r.
+  4 ????#rrrrrrrr.
+  5 ....#r.hhhhh..
+  6 rrrrrrhh#..h.?
+  7 Dhhhhhhh#..h.?
+  8 .rrrrr.h#rrh.?
+  9 ....#rrhhh...?
+ 10 ????#....hh..?
+ 11 ????????.#hh.?
+ 12 ?????????#.W.?
+ 13 ??????????...?
+
+strategy timeline:
+     0 ShhhhhhhhhhhhhhhhRRRRRRRRRRRRRRRRhhhhhhhhhhhhhhhhhhhRRRRRRRR
+    60 RRRRRRRRRRRhhhhhhhhhhhhhhhh
+  (h hunt, A acquire beacon, S pulse scan, e explore, R return to charge, c complete, ! abort)
+
+outcome: SUCCESS | conclusion EVE_FOUND at (12, 11) | EVE status DORMANT

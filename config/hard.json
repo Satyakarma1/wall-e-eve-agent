@@ -1,7 +1,9 @@
 {
+  "mission_name": "Hard maze with stale coordinates",
   "grid_size": [16, 16],
   "start_pos": [0, 0],
-  "eve_pos": [15, 15],
+  "charging_stations": [[0, 0], [9, 7]],
+  "eve": { "pos": [15, 15], "status": "ACTIVE" },
   "obstacles": [
     [1, 3], [2, 3], [3, 3], [4, 3], [5, 3],
     [5, 4], [5, 5], [5, 6], [5, 7],
@@ -10,20 +12,26 @@
     [13, 1], [13, 2], [13, 3], [14, 10], [15, 10]
   ],
   "clues": [
-    { "pos": [3, 7], "type": "directional_beacon", "noise_sigma": 0.0 },
-    { "pos": [9, 6], "type": "directional_beacon", "noise_sigma": 0.0 },
-    { "pos": [12, 14], "type": "directional_beacon", "noise_sigma": 0.0 }
+    { "pos": [3, 7], "type": "directional_beacon", "noise_sigma": 0.0, "bearing_noise_deg": 0.0 },
+    { "pos": [9, 6], "type": "directional_beacon", "noise_sigma": 0.0, "bearing_noise_deg": 0.0 },
+    { "pos": [12, 14], "type": "directional_beacon", "noise_sigma": 0.0, "bearing_noise_deg": 0.0 }
   ],
+  "initial_signal": {
+    "received_at": [0, 0],
+    "approx_pos": [12, 12],
+    "pos_sigma": 2.5,
+    "strength": 0.06,
+    "timestamp": "2805-07-14T04:30:00Z"
+  },
+  "mission_start": "2805-07-14T06:00:00Z",
+  "sensors": { "sensor_radius": 1, "scan_noise_sigma": 1.0, "strength_noise_sigma": 0.02 },
   "resources": {
     "initial_battery": 90.0,
+    "battery_capacity": 90.0,
     "max_steps": 200,
-    "scan_budget": 4,
-    "action_costs": {
-      "move": 1.0,
-      "inspect": 2.0,
-      "scan": 4.0,
-      "terminate": 0.0
-    }
+    "scan_budget": 3,
+    "recharge_per_action": 25.0,
+    "action_costs": { "move": 1.0, "inspect": 2.0, "scan": 4.0, "recharge": 0.0, "terminate": 0.0 }
   },
   "random_seed": 101
 }

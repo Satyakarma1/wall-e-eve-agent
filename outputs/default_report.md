@@ -1,39 +1,60 @@
-# WALL-E Mission Report — DEFAULT
-**Outcome**: `SUCCESS` [SUCCESS]
+# WALL-E Mission Report — Default wasteland sweep
 
-## Quantitative Performance Metrics
-- **Mission Succeeded**: Yes
-- **Total Steps**: 27
-- **Path Length Travelled**: 22 cells
-- **Battery Consumed**: 40.0 units
-- **Battery Remaining**: 60.0 units
-- **Pulse Scans Executed**: 4
-- **Cells Visited**: 23
-- **Exploration Coverage**: 17.56%
-- **Clues Discovered**: 1 / 1
+Config `default` · agent `walle` · outcome **SUCCESS** after 24 steps
 
-## Key Strategy Changes
-- **Step 0** -> `PULSE_SCAN`: Entropy high; firing deep radar scan pulse
-- **Step 4** -> `HUNT_BELIEF_TARGET`: Belief indicates EVE candidate at (11, 9) (P=0.185)
-- **Step 19** -> `ACQUIRE_CLUE`: Navigating to clue at (6, 8)
-- **Step 21** -> `HUNT_BELIEF_TARGET`: Belief indicates EVE candidate at (10, 10) (P=0.366)
+## 1. Verdict
+| Item | Inference |
+| :--- | :--- |
+| Conclusion | `EVE_FOUND` |
+| EVE location | (10, 10) — **observed directly at rendezvous** |
+| EVE status | DORMANT — **observed directly** (P(ACTIVE) = 0.00, P(DORMANT) = 1.00) |
+| Remaining uncertainty | -0.00 bits of entropy over EVE's location |
+| Recommended next step | EVE is DORMANT at (10, 10): stay with her, shield her and keep her beacon logged until pickup. Nearest dock is 20 moves away; battery left 72 is enough to escort her back. |
 
-## Action Trace (First 15 Steps)
-| Step | Position | Action | Strategy | Battery | Top Belief Candidate | Reason |
+## 2. Evidence found
+1. Step 0 — **Initial signal** received at (0, 0): bearing 140°, strength 0.07; 20 min old at mission start (timestamp 2805-07-14T05:40:00Z).
+2. Step 1 — **Pulse scan** from (0, 0): range ~14.4 cells, beacon strength 0.048.
+3. Step 9 — **Beacon** (4, 1) decoded: EVE ~10.8 cells away at bearing 124° → P(genuine) = 0.99.
+4. Step 22 — **EVE sighted** at (10, 10) by the local camera.
+5. Step 24 — **Rendezvous** at (10, 10): EVE status observed as DORMANT.
+
+## 3. Resources and performance
+- Steps: 24 (path length 22 cells)
+- Battery: 28.0 consumed, 72.0 remaining, 0.0 recharged over 0 dock action(s)
+- Pulse scans: 1 · beacons inspected: 1 · beacons sighted: 1 of 1
+- Coverage: 17.6% of free cells visited, 45.1% of the map sensed
+
+## 4. Strategy changes
+- **Step 0** → `PULSE_SCAN`: Belief entropy 6.4 bits: first pulse scan to measure EVE's range and signal strength
+- **Step 1** → `HUNT_BELIEF_TARGET`: Belief target (11, 10): P=0.14, 21 moves away
+- **Step 6** → `ACQUIRE_CLUE`: Beacon at (4, 1) not yet decoded (2 moves): going to inspect it
+- **Step 9** → `HUNT_BELIEF_TARGET`: Belief target (10, 10): P=0.26, 15 moves away
+- **Step 22** → `HUNT_BELIEF_TARGET`: Re-plan after EVE sighted at (10, 10)!: EVE sighted at (10, 10): closing in (2 moves)
+
+## 5. Decision trace
+Full trace with every observation, decision and outcome: `default_trace.json`.
+
+| Step | Position | Action | Strategy | Battery | Top candidate | Reason |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| 0 | (0, 0) | `SCAN` | `PULSE_SCAN` | 100.0 | (11, 11) P=0.007 | Emitting omnidirectional pulse scan to resolve candidate ambiguity |
-| 1 | (0, 0) | `SCAN` | `PULSE_SCAN` | 96.0 | (11, 9) P=0.095 | Emitting omnidirectional pulse scan to resolve candidate ambiguity |
-| 2 | (0, 0) | `SCAN` | `PULSE_SCAN` | 92.0 | (11, 8) P=0.096 | Emitting omnidirectional pulse scan to resolve candidate ambiguity |
-| 3 | (0, 0) | `SCAN` | `PULSE_SCAN` | 88.0 | (10, 10) P=0.148 | Emitting omnidirectional pulse scan to resolve candidate ambiguity |
-| 4 | (0, 0) | `MOVE_RIGHT` | `HUNT_BELIEF_TARGET` | 84.0 | (11, 9) P=0.185 | Advancing toward top candidate (11, 9) via A* |
-| 5 | (0, 1) | `MOVE_RIGHT` | `HUNT_BELIEF_TARGET` | 83.0 | (11, 9) P=0.185 | Advancing toward top candidate (11, 9) via A* |
-| 6 | (0, 2) | `MOVE_RIGHT` | `HUNT_BELIEF_TARGET` | 82.0 | (11, 9) P=0.185 | Advancing toward top candidate (11, 9) via A* |
-| 7 | (0, 3) | `MOVE_RIGHT` | `HUNT_BELIEF_TARGET` | 81.0 | (11, 9) P=0.185 | Advancing toward top candidate (11, 9) via A* |
-| 8 | (0, 4) | `MOVE_RIGHT` | `HUNT_BELIEF_TARGET` | 80.0 | (11, 9) P=0.185 | Advancing toward top candidate (11, 9) via A* |
-| 9 | (0, 5) | `MOVE_RIGHT` | `HUNT_BELIEF_TARGET` | 79.0 | (11, 9) P=0.185 | Advancing toward top candidate (11, 9) via A* |
-| 10 | (0, 6) | `MOVE_RIGHT` | `HUNT_BELIEF_TARGET` | 78.0 | (11, 9) P=0.185 | Advancing toward top candidate (11, 9) via A* |
-| 11 | (0, 7) | `MOVE_RIGHT` | `HUNT_BELIEF_TARGET` | 77.0 | (11, 9) P=0.185 | Advancing toward top candidate (11, 9) via A* |
-| 12 | (0, 8) | `MOVE_RIGHT` | `HUNT_BELIEF_TARGET` | 76.0 | (11, 9) P=0.185 | Advancing toward top candidate (11, 9) via A* |
-| 13 | (0, 9) | `MOVE_DOWN` | `HUNT_BELIEF_TARGET` | 75.0 | (11, 9) P=0.185 | Advancing toward top candidate (11, 9) via A* |
-| 14 | (1, 9) | `MOVE_DOWN` | `HUNT_BELIEF_TARGET` | 74.0 | (11, 9) P=0.185 | Advancing toward top candidate (11, 9) via A* |
-*(... and 12 more recorded steps)*
+| 0 | (0, 0) | `SCAN` | `PULSE_SCAN` | 100.0 | (11, 11) P=0.03 | Belief entropy 6.4 bits: first pulse scan to measure EVE's range and signal strength |
+| 1 | (0, 0) | `MOVE_DOWN` | `HUNT_BELIEF_TARGET` | 96.0 | (11, 10) P=0.14 | Belief target (11, 10): P=0.14, 21 moves away |
+| 2 | (1, 0) | `MOVE_RIGHT` | `HUNT_BELIEF_TARGET` | 95.0 | (11, 10) P=0.14 | Belief target (11, 10): P=0.14, 20 moves away |
+| 3 | (1, 1) | `MOVE_DOWN` | `HUNT_BELIEF_TARGET` | 94.0 | (11, 10) P=0.14 | Belief target (11, 10): P=0.14, 19 moves away |
+| 4 | (2, 1) | `MOVE_RIGHT` | `HUNT_BELIEF_TARGET` | 93.0 | (11, 10) P=0.14 | Belief target (11, 10): P=0.14, 18 moves away |
+| 5 | (2, 2) | `MOVE_DOWN` | `HUNT_BELIEF_TARGET` | 92.0 | (11, 10) P=0.14 | Belief target (11, 10): P=0.14, 17 moves away |
+| 6 | (3, 2) | `MOVE_LEFT` | `ACQUIRE_CLUE` | 91.0 | (11, 10) P=0.14 | Beacon at (4, 1) not yet decoded (2 moves): going to inspect it |
+| 7 | (3, 1) | `MOVE_DOWN` | `ACQUIRE_CLUE` | 90.0 | (11, 10) P=0.14 | Beacon at (4, 1) not yet decoded (1 moves): going to inspect it |
+| 8 | (4, 1) | `INSPECT` | `ACQUIRE_CLUE` | 89.0 | (11, 10) P=0.14 | Standing on beacon (4, 1): decoding its signal |
+| 9 | (4, 1) | `MOVE_RIGHT` | `HUNT_BELIEF_TARGET` | 87.0 | (10, 10) P=0.26 | Belief target (10, 10): P=0.26, 15 moves away |
+| 10 | (4, 2) | `MOVE_DOWN` | `HUNT_BELIEF_TARGET` | 86.0 | (10, 10) P=0.26 | Belief target (10, 10): P=0.26, 14 moves away |
+| 11 | (5, 2) | `MOVE_RIGHT` | `HUNT_BELIEF_TARGET` | 85.0 | (10, 10) P=0.26 | Belief target (10, 10): P=0.26, 13 moves away |
+| … | | | | | | *8 steps omitted* |
+| 20 | (8, 8) | `MOVE_RIGHT` | `HUNT_BELIEF_TARGET` | 76.0 | (10, 10) P=0.26 | Belief target (10, 10): P=0.26, 4 moves away |
+| 21 | (8, 9) | `MOVE_DOWN` | `HUNT_BELIEF_TARGET` | 75.0 | (10, 10) P=0.27 | Belief target (10, 10): P=0.27, 3 moves away |
+| 22 | (9, 9) | `MOVE_RIGHT` | `HUNT_BELIEF_TARGET` | 74.0 | (10, 10) P=1.00 | EVE sighted at (10, 10): closing in (2 moves) |
+| 23 | (9, 10) | `MOVE_DOWN` | `HUNT_BELIEF_TARGET` | 73.0 | (10, 10) P=1.00 | EVE sighted at (10, 10): closing in (1 moves) |
+
+## 6. After-mission evaluation (ground truth, never visible to the agent)
+- True EVE position (10, 10), true status DORMANT
+- Localization error of the final estimate: 0.00 cells (expected error under the belief: 0.00)
+- Status inference correct: yes · true position inside 90% credible region: yes

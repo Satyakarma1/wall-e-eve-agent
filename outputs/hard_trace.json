@@ -1,0 +1,5026 @@
+{
+ "mission": {
+  "config_name": "hard",
+  "mission_name": "Hard maze with stale coordinates",
+  "agent_type": "walle"
+ },
+ "briefing": {
+  "grid_size": [
+   16,
+   16
+  ],
+  "start_pos": [
+   0,
+   0
+  ],
+  "charging_stations": [
+   [
+    0,
+    0
+   ],
+   [
+    9,
+    7
+   ]
+  ],
+  "initial_signal": {
+   "received_at": [
+    0,
+    0
+   ],
+   "approx_pos": [
+    12,
+    12
+   ],
+   "pos_sigma": 2.5,
+   "strength": 0.06,
+   "timestamp": "2805-07-14T04:30:00Z"
+  },
+  "signal_age_minutes": 90.0,
+  "battery_capacity": 90.0,
+  "initial_battery": 90.0,
+  "max_steps": 200,
+  "scan_budget": 3,
+  "recharge_per_action": 25.0,
+  "action_costs": {
+   "move": 1.0,
+   "inspect": 2.0,
+   "scan": 4.0,
+   "recharge": 0.0,
+   "terminate": 0.0
+  },
+  "sensor_radius": 1,
+  "scan_noise_sigma": 1.0,
+  "strength_noise_sigma": 0.02
+ },
+ "outcome": {
+  "status": "SUCCESS",
+  "success": true,
+  "total_steps": 33,
+  "path_length": 30,
+  "battery_used": 40.0,
+  "battery_remaining": 50.0,
+  "energy_recharged": 0.0,
+  "recharge_count": 0,
+  "scan_count": 2,
+  "inspect_count": 1,
+  "cells_visited": 31,
+  "exploration_coverage_pct": 13.54,
+  "sensor_coverage_pct": 33.59,
+  "clues_discovered": 1,
+  "clues_inspected": 1,
+  "total_clues": 3
+ },
+ "inference": {
+  "conclusion": "EVE_FOUND",
+  "map_estimate": [
+   15,
+   15
+  ],
+  "map_probability": 1.0,
+  "p_within_1_cell": 1.0,
+  "credible_region_90": [
+   [
+    15,
+    15
+   ]
+  ],
+  "entropy_bits": -0.0,
+  "status_probabilities": {
+   "ACTIVE": 1.0,
+   "DORMANT": 0.0
+  },
+  "status_estimate": "ACTIVE",
+  "status_confidence": 1.0,
+  "status_observed": true,
+  "reachable_mass": 1.0,
+  "flagged_decoys": [],
+  "evidence": [
+   {
+    "step": 0,
+    "type": "initial_signal",
+    "received_at": [
+     0,
+     0
+    ],
+    "approx_pos": [
+     12,
+     12
+    ],
+    "pos_sigma": 2.5,
+    "strength": 0.06,
+    "timestamp": "2805-07-14T04:30:00Z",
+    "age_minutes": 90.0
+   },
+   {
+    "step": 1,
+    "type": "scan",
+    "pos": [
+     0,
+     0
+    ],
+    "distance": 20.42,
+    "strength": 0.0298
+   },
+   {
+    "step": 7,
+    "type": "scan",
+    "pos": [
+     3,
+     2
+    ],
+    "distance": 18.3,
+    "strength": 0.1244
+   },
+   {
+    "step": 29,
+    "type": "beacon",
+    "pos": [
+     12,
+     14
+    ],
+    "distance": 3.16,
+    "bearing_deg": 161.6,
+    "noise_sigma": 0.0,
+    "bearing_noise_deg": 0.0,
+    "p_genuine": 0.9987,
+    "flagged_decoy": false
+   },
+   {
+    "step": 31,
+    "type": "eve_sighting",
+    "pos": [
+     15,
+     15
+    ]
+   },
+   {
+    "step": 33,
+    "type": "rendezvous",
+    "pos": [
+     15,
+     15
+    ],
+    "status": "ACTIVE"
+   }
+  ],
+  "breach_candidates": [],
+  "last_position": [
+   15,
+   15
+  ],
+  "known_docks": [
+   [
+    0,
+    0
+   ],
+   [
+    9,
+    7
+   ]
+  ]
+ },
+ "strategy_transitions": [
+  [
+   0,
+   "PULSE_SCAN",
+   "Belief entropy 7.4 bits: first pulse scan to measure EVE's range and signal strength"
+  ],
+  [
+   1,
+   "HUNT_BELIEF_TARGET",
+   "Belief target (14, 15): P=0.12, 29 moves away"
+  ],
+  [
+   6,
+   "PULSE_SCAN",
+   "Belief entropy 3.8 bits: scanning from a new vantage point 3 cells from the last scan to triangulate"
+  ],
+  [
+   7,
+   "HUNT_BELIEF_TARGET",
+   "Belief target (15, 15): P=0.47, 25 moves away"
+  ],
+  [
+   27,
+   "ACQUIRE_CLUE",
+   "Beacon at (12, 14) not yet decoded (1 moves): going to inspect it"
+  ],
+  [
+   29,
+   "HUNT_BELIEF_TARGET",
+   "Belief target (15, 15): P=0.87, 4 moves away"
+  ],
+  [
+   31,
+   "HUNT_BELIEF_TARGET",
+   "Re-plan after EVE sighted at (15, 15)!: EVE sighted at (15, 15): closing in (2 moves)"
+  ]
+ ],
+ "steps": [
+  {
+   "step": 0,
+   "agent_pos": [
+    0,
+    0
+   ],
+   "action": "SCAN",
+   "strategy": "PULSE_SCAN",
+   "reason": "Belief entropy 7.4 bits: first pulse scan to measure EVE's range and signal strength",
+   "battery": 90.0,
+   "scan_budget": 3,
+   "belief_entropy": 7.427,
+   "top_candidate": [
+    13,
+    13
+   ],
+   "top_candidate_prob": 0.011,
+   "status_belief": {
+    "ACTIVE": 0.3182,
+    "DORMANT": 0.6818
+   },
+   "goal": [
+    0,
+    0
+   ],
+   "plan": [],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     0,
+     0
+    ],
+    "battery": 90.0,
+    "scan_budget": 3,
+    "new_obstacles": [],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": true,
+    "recharged": 0.0,
+    "message": "Environment initialized at starting position."
+   },
+   "outcome": {
+    "agent_pos": [
+     0,
+     0
+    ],
+    "battery": 86.0,
+    "scan_budget": 2,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Deep pulse scan performed at (0, 0).",
+    "revealed": [],
+    "scan_result": {
+     "scanner_pos": [
+      0,
+      0
+     ],
+     "estimated_distance": 20.4231,
+     "noise_sigma": 1.0,
+     "signal_strength": 0.0298,
+     "strength_noise_sigma": 0.02
+    },
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 1,
+   "agent_pos": [
+    0,
+    0
+   ],
+   "action": "MOVE_RIGHT",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (14, 15): P=0.12, 29 moves away",
+   "battery": 86.0,
+   "scan_budget": 2,
+   "belief_entropy": 3.79,
+   "top_candidate": [
+    14,
+    15
+   ],
+   "top_candidate_prob": 0.125,
+   "status_belief": {
+    "ACTIVE": 0.0369,
+    "DORMANT": 0.9631
+   },
+   "goal": [
+    14,
+    15
+   ],
+   "plan": [
+    [
+     0,
+     0
+    ],
+    [
+     0,
+     1
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     2,
+     2
+    ],
+    [
+     2,
+     3
+    ],
+    [
+     3,
+     3
+    ],
+    [
+     3,
+     4
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     4,
+     5
+    ],
+    [
+     5,
+     5
+    ],
+    [
+     5,
+     6
+    ],
+    [
+     6,
+     6
+    ],
+    [
+     6,
+     7
+    ],
+    [
+     7,
+     7
+    ],
+    [
+     7,
+     8
+    ],
+    [
+     8,
+     8
+    ],
+    [
+     8,
+     9
+    ],
+    [
+     9,
+     9
+    ],
+    [
+     9,
+     10
+    ],
+    [
+     10,
+     10
+    ],
+    [
+     10,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     12
+    ],
+    [
+     12,
+     12
+    ],
+    [
+     12,
+     13
+    ],
+    [
+     13,
+     13
+    ],
+    [
+     13,
+     14
+    ],
+    [
+     14,
+     14
+    ],
+    [
+     14,
+     15
+    ]
+   ],
+   "events": [
+    "Pulse scan from (0, 0): EVE ~20.4 cells away, strength 0.030"
+   ],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     0,
+     0
+    ],
+    "battery": 86.0,
+    "scan_budget": 2,
+    "new_obstacles": [],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": {
+     "scanner_pos": [
+      0,
+      0
+     ],
+     "estimated_distance": 20.4231,
+     "noise_sigma": 1.0,
+     "signal_strength": 0.0298,
+     "strength_noise_sigma": 0.02
+    },
+    "collision": false,
+    "at_dock": true,
+    "recharged": 0.0,
+    "message": "Deep pulse scan performed at (0, 0)."
+   },
+   "outcome": {
+    "agent_pos": [
+     0,
+     1
+    ],
+    "battery": 85.0,
+    "scan_budget": 2,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (0, 1).",
+    "revealed": [
+     [
+      0,
+      2,
+      "FREE"
+     ],
+     [
+      1,
+      2,
+      "FREE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 2,
+   "agent_pos": [
+    0,
+    1
+   ],
+   "action": "MOVE_RIGHT",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (14, 15): P=0.12, 28 moves away",
+   "battery": 85.0,
+   "scan_budget": 2,
+   "belief_entropy": 3.79,
+   "top_candidate": [
+    14,
+    15
+   ],
+   "top_candidate_prob": 0.125,
+   "status_belief": {
+    "ACTIVE": 0.0369,
+    "DORMANT": 0.9631
+   },
+   "goal": [
+    14,
+    15
+   ],
+   "plan": [
+    [
+     0,
+     1
+    ],
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     1,
+     3
+    ],
+    [
+     2,
+     3
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     4
+    ],
+    [
+     3,
+     5
+    ],
+    [
+     4,
+     5
+    ],
+    [
+     4,
+     6
+    ],
+    [
+     5,
+     6
+    ],
+    [
+     5,
+     7
+    ],
+    [
+     6,
+     7
+    ],
+    [
+     6,
+     8
+    ],
+    [
+     7,
+     8
+    ],
+    [
+     7,
+     9
+    ],
+    [
+     8,
+     9
+    ],
+    [
+     8,
+     10
+    ],
+    [
+     9,
+     10
+    ],
+    [
+     9,
+     11
+    ],
+    [
+     10,
+     11
+    ],
+    [
+     10,
+     12
+    ],
+    [
+     11,
+     12
+    ],
+    [
+     11,
+     13
+    ],
+    [
+     12,
+     13
+    ],
+    [
+     12,
+     14
+    ],
+    [
+     13,
+     14
+    ],
+    [
+     13,
+     15
+    ],
+    [
+     14,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     0,
+     1
+    ],
+    "battery": 85.0,
+    "scan_budget": 2,
+    "new_obstacles": [],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (0, 1)."
+   },
+   "outcome": {
+    "agent_pos": [
+     0,
+     2
+    ],
+    "battery": 84.0,
+    "scan_budget": 2,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (0, 2).",
+    "revealed": [
+     [
+      0,
+      3,
+      "FREE"
+     ],
+     [
+      1,
+      3,
+      "OBSTACLE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 3,
+   "agent_pos": [
+    0,
+    2
+   ],
+   "action": "MOVE_DOWN",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (14, 15): P=0.12, 27 moves away",
+   "battery": 84.0,
+   "scan_budget": 2,
+   "belief_entropy": 3.79,
+   "top_candidate": [
+    14,
+    15
+   ],
+   "top_candidate_prob": 0.125,
+   "status_belief": {
+    "ACTIVE": 0.0369,
+    "DORMANT": 0.9631
+   },
+   "goal": [
+    14,
+    15
+   ],
+   "plan": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     2,
+     2
+    ],
+    [
+     2,
+     3
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     4
+    ],
+    [
+     3,
+     5
+    ],
+    [
+     4,
+     5
+    ],
+    [
+     4,
+     6
+    ],
+    [
+     5,
+     6
+    ],
+    [
+     5,
+     7
+    ],
+    [
+     6,
+     7
+    ],
+    [
+     6,
+     8
+    ],
+    [
+     7,
+     8
+    ],
+    [
+     7,
+     9
+    ],
+    [
+     8,
+     9
+    ],
+    [
+     8,
+     10
+    ],
+    [
+     9,
+     10
+    ],
+    [
+     9,
+     11
+    ],
+    [
+     10,
+     11
+    ],
+    [
+     10,
+     12
+    ],
+    [
+     11,
+     12
+    ],
+    [
+     11,
+     13
+    ],
+    [
+     12,
+     13
+    ],
+    [
+     12,
+     14
+    ],
+    [
+     13,
+     14
+    ],
+    [
+     13,
+     15
+    ],
+    [
+     14,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     0,
+     2
+    ],
+    "battery": 84.0,
+    "scan_budget": 2,
+    "new_obstacles": [
+     [
+      1,
+      3
+     ]
+    ],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (0, 2)."
+   },
+   "outcome": {
+    "agent_pos": [
+     1,
+     2
+    ],
+    "battery": 83.0,
+    "scan_budget": 2,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (1, 2).",
+    "revealed": [
+     [
+      2,
+      1,
+      "FREE"
+     ],
+     [
+      2,
+      2,
+      "FREE"
+     ],
+     [
+      2,
+      3,
+      "OBSTACLE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 4,
+   "agent_pos": [
+    1,
+    2
+   ],
+   "action": "MOVE_DOWN",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (14, 15): P=0.12, 26 moves away",
+   "battery": 83.0,
+   "scan_budget": 2,
+   "belief_entropy": 3.79,
+   "top_candidate": [
+    14,
+    15
+   ],
+   "top_candidate_prob": 0.125,
+   "status_belief": {
+    "ACTIVE": 0.0369,
+    "DORMANT": 0.9631
+   },
+   "goal": [
+    14,
+    15
+   ],
+   "plan": [
+    [
+     1,
+     2
+    ],
+    [
+     2,
+     2
+    ],
+    [
+     3,
+     2
+    ],
+    [
+     3,
+     3
+    ],
+    [
+     3,
+     4
+    ],
+    [
+     3,
+     5
+    ],
+    [
+     4,
+     5
+    ],
+    [
+     4,
+     6
+    ],
+    [
+     5,
+     6
+    ],
+    [
+     5,
+     7
+    ],
+    [
+     6,
+     7
+    ],
+    [
+     6,
+     8
+    ],
+    [
+     7,
+     8
+    ],
+    [
+     7,
+     9
+    ],
+    [
+     8,
+     9
+    ],
+    [
+     8,
+     10
+    ],
+    [
+     9,
+     10
+    ],
+    [
+     9,
+     11
+    ],
+    [
+     10,
+     11
+    ],
+    [
+     10,
+     12
+    ],
+    [
+     11,
+     12
+    ],
+    [
+     11,
+     13
+    ],
+    [
+     12,
+     13
+    ],
+    [
+     12,
+     14
+    ],
+    [
+     13,
+     14
+    ],
+    [
+     13,
+     15
+    ],
+    [
+     14,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     1,
+     2
+    ],
+    "battery": 83.0,
+    "scan_budget": 2,
+    "new_obstacles": [
+     [
+      2,
+      3
+     ]
+    ],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (1, 2)."
+   },
+   "outcome": {
+    "agent_pos": [
+     2,
+     2
+    ],
+    "battery": 82.0,
+    "scan_budget": 2,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (2, 2).",
+    "revealed": [
+     [
+      3,
+      1,
+      "FREE"
+     ],
+     [
+      3,
+      2,
+      "FREE"
+     ],
+     [
+      3,
+      3,
+      "OBSTACLE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 5,
+   "agent_pos": [
+    2,
+    2
+   ],
+   "action": "MOVE_DOWN",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (14, 15): P=0.12, 25 moves away",
+   "battery": 82.0,
+   "scan_budget": 2,
+   "belief_entropy": 3.79,
+   "top_candidate": [
+    14,
+    15
+   ],
+   "top_candidate_prob": 0.125,
+   "status_belief": {
+    "ACTIVE": 0.0369,
+    "DORMANT": 0.9631
+   },
+   "goal": [
+    14,
+    15
+   ],
+   "plan": [
+    [
+     2,
+     2
+    ],
+    [
+     3,
+     2
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     4,
+     3
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     4,
+     5
+    ],
+    [
+     5,
+     5
+    ],
+    [
+     5,
+     6
+    ],
+    [
+     6,
+     6
+    ],
+    [
+     6,
+     7
+    ],
+    [
+     7,
+     7
+    ],
+    [
+     7,
+     8
+    ],
+    [
+     8,
+     8
+    ],
+    [
+     8,
+     9
+    ],
+    [
+     9,
+     9
+    ],
+    [
+     9,
+     10
+    ],
+    [
+     10,
+     10
+    ],
+    [
+     10,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     12
+    ],
+    [
+     12,
+     12
+    ],
+    [
+     12,
+     13
+    ],
+    [
+     13,
+     13
+    ],
+    [
+     13,
+     14
+    ],
+    [
+     14,
+     14
+    ],
+    [
+     14,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     2,
+     2
+    ],
+    "battery": 82.0,
+    "scan_budget": 2,
+    "new_obstacles": [
+     [
+      3,
+      3
+     ]
+    ],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (2, 2)."
+   },
+   "outcome": {
+    "agent_pos": [
+     3,
+     2
+    ],
+    "battery": 81.0,
+    "scan_budget": 2,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (3, 2).",
+    "revealed": [
+     [
+      4,
+      1,
+      "FREE"
+     ],
+     [
+      4,
+      2,
+      "FREE"
+     ],
+     [
+      4,
+      3,
+      "OBSTACLE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 6,
+   "agent_pos": [
+    3,
+    2
+   ],
+   "action": "SCAN",
+   "strategy": "PULSE_SCAN",
+   "reason": "Belief entropy 3.8 bits: scanning from a new vantage point 3 cells from the last scan to triangulate",
+   "battery": 81.0,
+   "scan_budget": 2,
+   "belief_entropy": 3.79,
+   "top_candidate": [
+    14,
+    15
+   ],
+   "top_candidate_prob": 0.125,
+   "status_belief": {
+    "ACTIVE": 0.0369,
+    "DORMANT": 0.9631
+   },
+   "goal": [
+    3,
+    2
+   ],
+   "plan": [],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     3,
+     2
+    ],
+    "battery": 81.0,
+    "scan_budget": 2,
+    "new_obstacles": [
+     [
+      4,
+      3
+     ]
+    ],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (3, 2)."
+   },
+   "outcome": {
+    "agent_pos": [
+     3,
+     2
+    ],
+    "battery": 77.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Deep pulse scan performed at (3, 2).",
+    "revealed": [],
+    "scan_result": {
+     "scanner_pos": [
+      3,
+      2
+     ],
+     "estimated_distance": 18.2951,
+     "noise_sigma": 1.0,
+     "signal_strength": 0.1244,
+     "strength_noise_sigma": 0.02
+    },
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 7,
+   "agent_pos": [
+    3,
+    2
+   ],
+   "action": "MOVE_DOWN",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (15, 15): P=0.47, 25 moves away",
+   "battery": 77.0,
+   "scan_budget": 1,
+   "belief_entropy": 1.949,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.47,
+   "status_belief": {
+    "ACTIVE": 0.9883,
+    "DORMANT": 0.0117
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     3,
+     2
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     5,
+     2
+    ],
+    [
+     5,
+     3
+    ],
+    [
+     5,
+     4
+    ],
+    [
+     5,
+     5
+    ],
+    [
+     6,
+     5
+    ],
+    [
+     6,
+     6
+    ],
+    [
+     7,
+     6
+    ],
+    [
+     7,
+     7
+    ],
+    [
+     8,
+     7
+    ],
+    [
+     8,
+     8
+    ],
+    [
+     9,
+     8
+    ],
+    [
+     9,
+     9
+    ],
+    [
+     10,
+     9
+    ],
+    [
+     10,
+     10
+    ],
+    [
+     11,
+     10
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     12,
+     11
+    ],
+    [
+     12,
+     12
+    ],
+    [
+     13,
+     12
+    ],
+    [
+     13,
+     13
+    ],
+    [
+     14,
+     13
+    ],
+    [
+     14,
+     14
+    ],
+    [
+     15,
+     14
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [
+    "Pulse scan from (3, 2): EVE ~18.3 cells away, strength 0.124"
+   ],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     3,
+     2
+    ],
+    "battery": 77.0,
+    "scan_budget": 1,
+    "new_obstacles": [],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": {
+     "scanner_pos": [
+      3,
+      2
+     ],
+     "estimated_distance": 18.2951,
+     "noise_sigma": 1.0,
+     "signal_strength": 0.1244,
+     "strength_noise_sigma": 0.02
+    },
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Deep pulse scan performed at (3, 2)."
+   },
+   "outcome": {
+    "agent_pos": [
+     4,
+     2
+    ],
+    "battery": 76.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (4, 2).",
+    "revealed": [
+     [
+      5,
+      1,
+      "FREE"
+     ],
+     [
+      5,
+      2,
+      "FREE"
+     ],
+     [
+      5,
+      3,
+      "OBSTACLE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 8,
+   "agent_pos": [
+    4,
+    2
+   ],
+   "action": "MOVE_DOWN",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (15, 15): P=0.47, 24 moves away",
+   "battery": 76.0,
+   "scan_budget": 1,
+   "belief_entropy": 1.949,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.47,
+   "status_belief": {
+    "ACTIVE": 0.9883,
+    "DORMANT": 0.0117
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     4,
+     2
+    ],
+    [
+     5,
+     2
+    ],
+    [
+     6,
+     2
+    ],
+    [
+     6,
+     3
+    ],
+    [
+     6,
+     4
+    ],
+    [
+     6,
+     5
+    ],
+    [
+     7,
+     5
+    ],
+    [
+     7,
+     6
+    ],
+    [
+     8,
+     6
+    ],
+    [
+     8,
+     7
+    ],
+    [
+     9,
+     7
+    ],
+    [
+     9,
+     8
+    ],
+    [
+     9,
+     9
+    ],
+    [
+     10,
+     9
+    ],
+    [
+     10,
+     10
+    ],
+    [
+     11,
+     10
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     12,
+     11
+    ],
+    [
+     12,
+     12
+    ],
+    [
+     13,
+     12
+    ],
+    [
+     13,
+     13
+    ],
+    [
+     14,
+     13
+    ],
+    [
+     14,
+     14
+    ],
+    [
+     15,
+     14
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     4,
+     2
+    ],
+    "battery": 76.0,
+    "scan_budget": 1,
+    "new_obstacles": [
+     [
+      5,
+      3
+     ]
+    ],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (4, 2)."
+   },
+   "outcome": {
+    "agent_pos": [
+     5,
+     2
+    ],
+    "battery": 75.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (5, 2).",
+    "revealed": [
+     [
+      6,
+      1,
+      "FREE"
+     ],
+     [
+      6,
+      2,
+      "FREE"
+     ],
+     [
+      6,
+      3,
+      "FREE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 9,
+   "agent_pos": [
+    5,
+    2
+   ],
+   "action": "MOVE_DOWN",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (15, 15): P=0.47, 23 moves away",
+   "battery": 75.0,
+   "scan_budget": 1,
+   "belief_entropy": 1.949,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.47,
+   "status_belief": {
+    "ACTIVE": 0.9883,
+    "DORMANT": 0.0117
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     5,
+     2
+    ],
+    [
+     6,
+     2
+    ],
+    [
+     6,
+     3
+    ],
+    [
+     6,
+     4
+    ],
+    [
+     7,
+     4
+    ],
+    [
+     7,
+     5
+    ],
+    [
+     8,
+     5
+    ],
+    [
+     8,
+     6
+    ],
+    [
+     8,
+     7
+    ],
+    [
+     9,
+     7
+    ],
+    [
+     9,
+     8
+    ],
+    [
+     10,
+     8
+    ],
+    [
+     10,
+     9
+    ],
+    [
+     11,
+     9
+    ],
+    [
+     11,
+     10
+    ],
+    [
+     12,
+     10
+    ],
+    [
+     12,
+     11
+    ],
+    [
+     12,
+     12
+    ],
+    [
+     13,
+     12
+    ],
+    [
+     13,
+     13
+    ],
+    [
+     14,
+     13
+    ],
+    [
+     14,
+     14
+    ],
+    [
+     15,
+     14
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     5,
+     2
+    ],
+    "battery": 75.0,
+    "scan_budget": 1,
+    "new_obstacles": [],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (5, 2)."
+   },
+   "outcome": {
+    "agent_pos": [
+     6,
+     2
+    ],
+    "battery": 74.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (6, 2).",
+    "revealed": [
+     [
+      7,
+      1,
+      "FREE"
+     ],
+     [
+      7,
+      2,
+      "FREE"
+     ],
+     [
+      7,
+      3,
+      "FREE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 10,
+   "agent_pos": [
+    6,
+    2
+   ],
+   "action": "MOVE_RIGHT",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (15, 15): P=0.47, 22 moves away",
+   "battery": 74.0,
+   "scan_budget": 1,
+   "belief_entropy": 1.949,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.47,
+   "status_belief": {
+    "ACTIVE": 0.9883,
+    "DORMANT": 0.0117
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     6,
+     2
+    ],
+    [
+     6,
+     3
+    ],
+    [
+     7,
+     3
+    ],
+    [
+     7,
+     4
+    ],
+    [
+     8,
+     4
+    ],
+    [
+     8,
+     5
+    ],
+    [
+     8,
+     6
+    ],
+    [
+     9,
+     6
+    ],
+    [
+     9,
+     7
+    ],
+    [
+     10,
+     7
+    ],
+    [
+     10,
+     8
+    ],
+    [
+     10,
+     9
+    ],
+    [
+     11,
+     9
+    ],
+    [
+     11,
+     10
+    ],
+    [
+     12,
+     10
+    ],
+    [
+     12,
+     11
+    ],
+    [
+     13,
+     11
+    ],
+    [
+     13,
+     12
+    ],
+    [
+     13,
+     13
+    ],
+    [
+     14,
+     13
+    ],
+    [
+     14,
+     14
+    ],
+    [
+     15,
+     14
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     6,
+     2
+    ],
+    "battery": 74.0,
+    "scan_budget": 1,
+    "new_obstacles": [],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (6, 2)."
+   },
+   "outcome": {
+    "agent_pos": [
+     6,
+     3
+    ],
+    "battery": 73.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (6, 3).",
+    "revealed": [
+     [
+      5,
+      4,
+      "OBSTACLE"
+     ],
+     [
+      6,
+      4,
+      "FREE"
+     ],
+     [
+      7,
+      4,
+      "FREE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 11,
+   "agent_pos": [
+    6,
+    3
+   ],
+   "action": "MOVE_RIGHT",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (15, 15): P=0.47, 21 moves away",
+   "battery": 73.0,
+   "scan_budget": 1,
+   "belief_entropy": 1.949,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.47,
+   "status_belief": {
+    "ACTIVE": 0.9883,
+    "DORMANT": 0.0117
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     6,
+     3
+    ],
+    [
+     6,
+     4
+    ],
+    [
+     7,
+     4
+    ],
+    [
+     7,
+     5
+    ],
+    [
+     8,
+     5
+    ],
+    [
+     8,
+     6
+    ],
+    [
+     9,
+     6
+    ],
+    [
+     9,
+     7
+    ],
+    [
+     9,
+     8
+    ],
+    [
+     10,
+     8
+    ],
+    [
+     10,
+     9
+    ],
+    [
+     11,
+     9
+    ],
+    [
+     11,
+     10
+    ],
+    [
+     12,
+     10
+    ],
+    [
+     12,
+     11
+    ],
+    [
+     12,
+     12
+    ],
+    [
+     13,
+     12
+    ],
+    [
+     13,
+     13
+    ],
+    [
+     14,
+     13
+    ],
+    [
+     14,
+     14
+    ],
+    [
+     15,
+     14
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     6,
+     3
+    ],
+    "battery": 73.0,
+    "scan_budget": 1,
+    "new_obstacles": [
+     [
+      5,
+      4
+     ]
+    ],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (6, 3)."
+   },
+   "outcome": {
+    "agent_pos": [
+     6,
+     4
+    ],
+    "battery": 72.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (6, 4).",
+    "revealed": [
+     [
+      5,
+      5,
+      "OBSTACLE"
+     ],
+     [
+      6,
+      5,
+      "FREE"
+     ],
+     [
+      7,
+      5,
+      "FREE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 12,
+   "agent_pos": [
+    6,
+    4
+   ],
+   "action": "MOVE_RIGHT",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (15, 15): P=0.47, 20 moves away",
+   "battery": 72.0,
+   "scan_budget": 1,
+   "belief_entropy": 1.949,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.47,
+   "status_belief": {
+    "ACTIVE": 0.9883,
+    "DORMANT": 0.0117
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     6,
+     4
+    ],
+    [
+     6,
+     5
+    ],
+    [
+     7,
+     5
+    ],
+    [
+     7,
+     6
+    ],
+    [
+     8,
+     6
+    ],
+    [
+     8,
+     7
+    ],
+    [
+     9,
+     7
+    ],
+    [
+     9,
+     8
+    ],
+    [
+     10,
+     8
+    ],
+    [
+     10,
+     9
+    ],
+    [
+     10,
+     10
+    ],
+    [
+     11,
+     10
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     12,
+     11
+    ],
+    [
+     12,
+     12
+    ],
+    [
+     13,
+     12
+    ],
+    [
+     13,
+     13
+    ],
+    [
+     14,
+     13
+    ],
+    [
+     14,
+     14
+    ],
+    [
+     15,
+     14
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     6,
+     4
+    ],
+    "battery": 72.0,
+    "scan_budget": 1,
+    "new_obstacles": [
+     [
+      5,
+      5
+     ]
+    ],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (6, 4)."
+   },
+   "outcome": {
+    "agent_pos": [
+     6,
+     5
+    ],
+    "battery": 71.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (6, 5).",
+    "revealed": [
+     [
+      5,
+      6,
+      "OBSTACLE"
+     ],
+     [
+      6,
+      6,
+      "FREE"
+     ],
+     [
+      7,
+      6,
+      "FREE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 13,
+   "agent_pos": [
+    6,
+    5
+   ],
+   "action": "MOVE_RIGHT",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (15, 15): P=0.47, 19 moves away",
+   "battery": 71.0,
+   "scan_budget": 1,
+   "belief_entropy": 1.949,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.47,
+   "status_belief": {
+    "ACTIVE": 0.9883,
+    "DORMANT": 0.0117
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     6,
+     5
+    ],
+    [
+     6,
+     6
+    ],
+    [
+     7,
+     6
+    ],
+    [
+     7,
+     7
+    ],
+    [
+     8,
+     7
+    ],
+    [
+     8,
+     8
+    ],
+    [
+     9,
+     8
+    ],
+    [
+     9,
+     9
+    ],
+    [
+     10,
+     9
+    ],
+    [
+     10,
+     10
+    ],
+    [
+     11,
+     10
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     12,
+     11
+    ],
+    [
+     12,
+     12
+    ],
+    [
+     13,
+     12
+    ],
+    [
+     13,
+     13
+    ],
+    [
+     14,
+     13
+    ],
+    [
+     14,
+     14
+    ],
+    [
+     15,
+     14
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     6,
+     5
+    ],
+    "battery": 71.0,
+    "scan_budget": 1,
+    "new_obstacles": [
+     [
+      5,
+      6
+     ]
+    ],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (6, 5)."
+   },
+   "outcome": {
+    "agent_pos": [
+     6,
+     6
+    ],
+    "battery": 70.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (6, 6).",
+    "revealed": [
+     [
+      5,
+      7,
+      "OBSTACLE"
+     ],
+     [
+      6,
+      7,
+      "FREE"
+     ],
+     [
+      7,
+      7,
+      "FREE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 14,
+   "agent_pos": [
+    6,
+    6
+   ],
+   "action": "MOVE_RIGHT",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (15, 15): P=0.47, 18 moves away",
+   "battery": 70.0,
+   "scan_budget": 1,
+   "belief_entropy": 1.949,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.47,
+   "status_belief": {
+    "ACTIVE": 0.9883,
+    "DORMANT": 0.0117
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     6,
+     6
+    ],
+    [
+     6,
+     7
+    ],
+    [
+     7,
+     7
+    ],
+    [
+     7,
+     8
+    ],
+    [
+     8,
+     8
+    ],
+    [
+     8,
+     9
+    ],
+    [
+     9,
+     9
+    ],
+    [
+     9,
+     10
+    ],
+    [
+     10,
+     10
+    ],
+    [
+     10,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     12
+    ],
+    [
+     12,
+     12
+    ],
+    [
+     12,
+     13
+    ],
+    [
+     13,
+     13
+    ],
+    [
+     13,
+     14
+    ],
+    [
+     14,
+     14
+    ],
+    [
+     14,
+     15
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     6,
+     6
+    ],
+    "battery": 70.0,
+    "scan_budget": 1,
+    "new_obstacles": [
+     [
+      5,
+      7
+     ]
+    ],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (6, 6)."
+   },
+   "outcome": {
+    "agent_pos": [
+     6,
+     7
+    ],
+    "battery": 69.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (6, 7).",
+    "revealed": [
+     [
+      5,
+      8,
+      "FREE"
+     ],
+     [
+      6,
+      8,
+      "FREE"
+     ],
+     [
+      7,
+      8,
+      "FREE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 15,
+   "agent_pos": [
+    6,
+    7
+   ],
+   "action": "MOVE_DOWN",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (15, 15): P=0.47, 17 moves away",
+   "battery": 69.0,
+   "scan_budget": 1,
+   "belief_entropy": 1.949,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.47,
+   "status_belief": {
+    "ACTIVE": 0.9883,
+    "DORMANT": 0.0117
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     6,
+     7
+    ],
+    [
+     7,
+     7
+    ],
+    [
+     7,
+     8
+    ],
+    [
+     8,
+     8
+    ],
+    [
+     8,
+     9
+    ],
+    [
+     9,
+     9
+    ],
+    [
+     9,
+     10
+    ],
+    [
+     10,
+     10
+    ],
+    [
+     10,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     12
+    ],
+    [
+     12,
+     12
+    ],
+    [
+     12,
+     13
+    ],
+    [
+     13,
+     13
+    ],
+    [
+     13,
+     14
+    ],
+    [
+     14,
+     14
+    ],
+    [
+     14,
+     15
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     6,
+     7
+    ],
+    "battery": 69.0,
+    "scan_budget": 1,
+    "new_obstacles": [],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (6, 7)."
+   },
+   "outcome": {
+    "agent_pos": [
+     7,
+     7
+    ],
+    "battery": 68.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (7, 7).",
+    "revealed": [
+     [
+      8,
+      6,
+      "FREE"
+     ],
+     [
+      8,
+      7,
+      "FREE"
+     ],
+     [
+      8,
+      8,
+      "OBSTACLE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 16,
+   "agent_pos": [
+    7,
+    7
+   ],
+   "action": "MOVE_RIGHT",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (15, 15): P=0.47, 16 moves away",
+   "battery": 68.0,
+   "scan_budget": 1,
+   "belief_entropy": 1.949,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.47,
+   "status_belief": {
+    "ACTIVE": 0.9883,
+    "DORMANT": 0.0117
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     7,
+     7
+    ],
+    [
+     7,
+     8
+    ],
+    [
+     7,
+     9
+    ],
+    [
+     8,
+     9
+    ],
+    [
+     9,
+     9
+    ],
+    [
+     9,
+     10
+    ],
+    [
+     10,
+     10
+    ],
+    [
+     10,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     12
+    ],
+    [
+     12,
+     12
+    ],
+    [
+     12,
+     13
+    ],
+    [
+     13,
+     13
+    ],
+    [
+     13,
+     14
+    ],
+    [
+     14,
+     14
+    ],
+    [
+     14,
+     15
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     7,
+     7
+    ],
+    "battery": 68.0,
+    "scan_budget": 1,
+    "new_obstacles": [
+     [
+      8,
+      8
+     ]
+    ],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (7, 7)."
+   },
+   "outcome": {
+    "agent_pos": [
+     7,
+     8
+    ],
+    "battery": 67.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (7, 8).",
+    "revealed": [
+     [
+      6,
+      9,
+      "FREE"
+     ],
+     [
+      7,
+      9,
+      "FREE"
+     ],
+     [
+      8,
+      9,
+      "OBSTACLE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 17,
+   "agent_pos": [
+    7,
+    8
+   ],
+   "action": "MOVE_RIGHT",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (15, 15): P=0.47, 15 moves away",
+   "battery": 67.0,
+   "scan_budget": 1,
+   "belief_entropy": 1.949,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.47,
+   "status_belief": {
+    "ACTIVE": 0.9883,
+    "DORMANT": 0.0117
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     7,
+     8
+    ],
+    [
+     7,
+     9
+    ],
+    [
+     7,
+     10
+    ],
+    [
+     8,
+     10
+    ],
+    [
+     9,
+     10
+    ],
+    [
+     10,
+     10
+    ],
+    [
+     10,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     12
+    ],
+    [
+     12,
+     12
+    ],
+    [
+     12,
+     13
+    ],
+    [
+     13,
+     13
+    ],
+    [
+     13,
+     14
+    ],
+    [
+     14,
+     14
+    ],
+    [
+     14,
+     15
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     7,
+     8
+    ],
+    "battery": 67.0,
+    "scan_budget": 1,
+    "new_obstacles": [
+     [
+      8,
+      9
+     ]
+    ],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (7, 8)."
+   },
+   "outcome": {
+    "agent_pos": [
+     7,
+     9
+    ],
+    "battery": 66.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (7, 9).",
+    "revealed": [
+     [
+      6,
+      10,
+      "FREE"
+     ],
+     [
+      7,
+      10,
+      "FREE"
+     ],
+     [
+      8,
+      10,
+      "OBSTACLE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 18,
+   "agent_pos": [
+    7,
+    9
+   ],
+   "action": "MOVE_RIGHT",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (15, 15): P=0.47, 14 moves away",
+   "battery": 66.0,
+   "scan_budget": 1,
+   "belief_entropy": 1.949,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.47,
+   "status_belief": {
+    "ACTIVE": 0.9883,
+    "DORMANT": 0.0117
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     7,
+     9
+    ],
+    [
+     7,
+     10
+    ],
+    [
+     7,
+     11
+    ],
+    [
+     8,
+     11
+    ],
+    [
+     9,
+     11
+    ],
+    [
+     10,
+     11
+    ],
+    [
+     10,
+     12
+    ],
+    [
+     11,
+     12
+    ],
+    [
+     12,
+     12
+    ],
+    [
+     12,
+     13
+    ],
+    [
+     13,
+     13
+    ],
+    [
+     13,
+     14
+    ],
+    [
+     14,
+     14
+    ],
+    [
+     14,
+     15
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     7,
+     9
+    ],
+    "battery": 66.0,
+    "scan_budget": 1,
+    "new_obstacles": [
+     [
+      8,
+      10
+     ]
+    ],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (7, 9)."
+   },
+   "outcome": {
+    "agent_pos": [
+     7,
+     10
+    ],
+    "battery": 65.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (7, 10).",
+    "revealed": [
+     [
+      6,
+      11,
+      "FREE"
+     ],
+     [
+      7,
+      11,
+      "FREE"
+     ],
+     [
+      8,
+      11,
+      "OBSTACLE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 19,
+   "agent_pos": [
+    7,
+    10
+   ],
+   "action": "MOVE_RIGHT",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (15, 15): P=0.47, 13 moves away",
+   "battery": 65.0,
+   "scan_budget": 1,
+   "belief_entropy": 1.949,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.47,
+   "status_belief": {
+    "ACTIVE": 0.9883,
+    "DORMANT": 0.0117
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     7,
+     10
+    ],
+    [
+     7,
+     11
+    ],
+    [
+     7,
+     12
+    ],
+    [
+     8,
+     12
+    ],
+    [
+     9,
+     12
+    ],
+    [
+     10,
+     12
+    ],
+    [
+     11,
+     12
+    ],
+    [
+     11,
+     13
+    ],
+    [
+     12,
+     13
+    ],
+    [
+     13,
+     13
+    ],
+    [
+     13,
+     14
+    ],
+    [
+     14,
+     14
+    ],
+    [
+     14,
+     15
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     7,
+     10
+    ],
+    "battery": 65.0,
+    "scan_budget": 1,
+    "new_obstacles": [
+     [
+      8,
+      11
+     ]
+    ],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (7, 10)."
+   },
+   "outcome": {
+    "agent_pos": [
+     7,
+     11
+    ],
+    "battery": 64.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (7, 11).",
+    "revealed": [
+     [
+      6,
+      12,
+      "FREE"
+     ],
+     [
+      7,
+      12,
+      "FREE"
+     ],
+     [
+      8,
+      12,
+      "FREE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 20,
+   "agent_pos": [
+    7,
+    11
+   ],
+   "action": "MOVE_RIGHT",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (15, 15): P=0.47, 12 moves away",
+   "battery": 64.0,
+   "scan_budget": 1,
+   "belief_entropy": 1.949,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.47,
+   "status_belief": {
+    "ACTIVE": 0.9883,
+    "DORMANT": 0.0117
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     7,
+     11
+    ],
+    [
+     7,
+     12
+    ],
+    [
+     8,
+     12
+    ],
+    [
+     9,
+     12
+    ],
+    [
+     10,
+     12
+    ],
+    [
+     10,
+     13
+    ],
+    [
+     11,
+     13
+    ],
+    [
+     12,
+     13
+    ],
+    [
+     12,
+     14
+    ],
+    [
+     13,
+     14
+    ],
+    [
+     14,
+     14
+    ],
+    [
+     14,
+     15
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     7,
+     11
+    ],
+    "battery": 64.0,
+    "scan_budget": 1,
+    "new_obstacles": [],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (7, 11)."
+   },
+   "outcome": {
+    "agent_pos": [
+     7,
+     12
+    ],
+    "battery": 63.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (7, 12).",
+    "revealed": [
+     [
+      6,
+      13,
+      "FREE"
+     ],
+     [
+      7,
+      13,
+      "FREE"
+     ],
+     [
+      8,
+      13,
+      "FREE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 21,
+   "agent_pos": [
+    7,
+    12
+   ],
+   "action": "MOVE_DOWN",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (15, 15): P=0.47, 11 moves away",
+   "battery": 63.0,
+   "scan_budget": 1,
+   "belief_entropy": 1.949,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.47,
+   "status_belief": {
+    "ACTIVE": 0.9883,
+    "DORMANT": 0.0117
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     7,
+     12
+    ],
+    [
+     8,
+     12
+    ],
+    [
+     8,
+     13
+    ],
+    [
+     9,
+     13
+    ],
+    [
+     10,
+     13
+    ],
+    [
+     11,
+     13
+    ],
+    [
+     11,
+     14
+    ],
+    [
+     12,
+     14
+    ],
+    [
+     13,
+     14
+    ],
+    [
+     14,
+     14
+    ],
+    [
+     14,
+     15
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     7,
+     12
+    ],
+    "battery": 63.0,
+    "scan_budget": 1,
+    "new_obstacles": [],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (7, 12)."
+   },
+   "outcome": {
+    "agent_pos": [
+     8,
+     12
+    ],
+    "battery": 62.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (8, 12).",
+    "revealed": [
+     [
+      9,
+      11,
+      "FREE"
+     ],
+     [
+      9,
+      12,
+      "FREE"
+     ],
+     [
+      9,
+      13,
+      "FREE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 22,
+   "agent_pos": [
+    8,
+    12
+   ],
+   "action": "MOVE_DOWN",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (15, 15): P=0.47, 10 moves away",
+   "battery": 62.0,
+   "scan_budget": 1,
+   "belief_entropy": 1.949,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.47,
+   "status_belief": {
+    "ACTIVE": 0.9883,
+    "DORMANT": 0.0117
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     8,
+     12
+    ],
+    [
+     9,
+     12
+    ],
+    [
+     9,
+     13
+    ],
+    [
+     10,
+     13
+    ],
+    [
+     11,
+     13
+    ],
+    [
+     11,
+     14
+    ],
+    [
+     12,
+     14
+    ],
+    [
+     13,
+     14
+    ],
+    [
+     14,
+     14
+    ],
+    [
+     14,
+     15
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     8,
+     12
+    ],
+    "battery": 62.0,
+    "scan_budget": 1,
+    "new_obstacles": [],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (8, 12)."
+   },
+   "outcome": {
+    "agent_pos": [
+     9,
+     12
+    ],
+    "battery": 61.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (9, 12).",
+    "revealed": [
+     [
+      10,
+      11,
+      "FREE"
+     ],
+     [
+      10,
+      12,
+      "FREE"
+     ],
+     [
+      10,
+      13,
+      "FREE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 23,
+   "agent_pos": [
+    9,
+    12
+   ],
+   "action": "MOVE_DOWN",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (15, 15): P=0.47, 9 moves away",
+   "battery": 61.0,
+   "scan_budget": 1,
+   "belief_entropy": 1.949,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.47,
+   "status_belief": {
+    "ACTIVE": 0.9883,
+    "DORMANT": 0.0117
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     9,
+     12
+    ],
+    [
+     10,
+     12
+    ],
+    [
+     10,
+     13
+    ],
+    [
+     11,
+     13
+    ],
+    [
+     12,
+     13
+    ],
+    [
+     12,
+     14
+    ],
+    [
+     13,
+     14
+    ],
+    [
+     14,
+     14
+    ],
+    [
+     14,
+     15
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     9,
+     12
+    ],
+    "battery": 61.0,
+    "scan_budget": 1,
+    "new_obstacles": [],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (9, 12)."
+   },
+   "outcome": {
+    "agent_pos": [
+     10,
+     12
+    ],
+    "battery": 60.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (10, 12).",
+    "revealed": [
+     [
+      11,
+      11,
+      "FREE"
+     ],
+     [
+      11,
+      12,
+      "OBSTACLE"
+     ],
+     [
+      11,
+      13,
+      "OBSTACLE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 24,
+   "agent_pos": [
+    10,
+    12
+   ],
+   "action": "MOVE_RIGHT",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (15, 15): P=0.47, 8 moves away",
+   "battery": 60.0,
+   "scan_budget": 1,
+   "belief_entropy": 1.949,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.47,
+   "status_belief": {
+    "ACTIVE": 0.9883,
+    "DORMANT": 0.0117
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     10,
+     12
+    ],
+    [
+     10,
+     13
+    ],
+    [
+     10,
+     14
+    ],
+    [
+     11,
+     14
+    ],
+    [
+     12,
+     14
+    ],
+    [
+     13,
+     14
+    ],
+    [
+     14,
+     14
+    ],
+    [
+     14,
+     15
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     10,
+     12
+    ],
+    "battery": 60.0,
+    "scan_budget": 1,
+    "new_obstacles": [
+     [
+      11,
+      12
+     ],
+     [
+      11,
+      13
+     ]
+    ],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (10, 12)."
+   },
+   "outcome": {
+    "agent_pos": [
+     10,
+     13
+    ],
+    "battery": 59.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (10, 13).",
+    "revealed": [
+     [
+      9,
+      14,
+      "FREE"
+     ],
+     [
+      10,
+      14,
+      "FREE"
+     ],
+     [
+      11,
+      14,
+      "FREE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 25,
+   "agent_pos": [
+    10,
+    13
+   ],
+   "action": "MOVE_RIGHT",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (15, 15): P=0.47, 7 moves away",
+   "battery": 59.0,
+   "scan_budget": 1,
+   "belief_entropy": 1.949,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.47,
+   "status_belief": {
+    "ACTIVE": 0.9883,
+    "DORMANT": 0.0117
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     10,
+     13
+    ],
+    [
+     10,
+     14
+    ],
+    [
+     11,
+     14
+    ],
+    [
+     12,
+     14
+    ],
+    [
+     13,
+     14
+    ],
+    [
+     14,
+     14
+    ],
+    [
+     14,
+     15
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     10,
+     13
+    ],
+    "battery": 59.0,
+    "scan_budget": 1,
+    "new_obstacles": [],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (10, 13)."
+   },
+   "outcome": {
+    "agent_pos": [
+     10,
+     14
+    ],
+    "battery": 58.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (10, 14).",
+    "revealed": [
+     [
+      9,
+      15,
+      "FREE"
+     ],
+     [
+      10,
+      15,
+      "FREE"
+     ],
+     [
+      11,
+      15,
+      "FREE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 26,
+   "agent_pos": [
+    10,
+    14
+   ],
+   "action": "MOVE_DOWN",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (15, 15): P=0.47, 6 moves away",
+   "battery": 58.0,
+   "scan_budget": 1,
+   "belief_entropy": 1.947,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.47,
+   "status_belief": {
+    "ACTIVE": 0.9884,
+    "DORMANT": 0.0116
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     10,
+     14
+    ],
+    [
+     11,
+     14
+    ],
+    [
+     12,
+     14
+    ],
+    [
+     12,
+     15
+    ],
+    [
+     13,
+     15
+    ],
+    [
+     14,
+     15
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     10,
+     14
+    ],
+    "battery": 58.0,
+    "scan_budget": 1,
+    "new_obstacles": [],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (10, 14)."
+   },
+   "outcome": {
+    "agent_pos": [
+     11,
+     14
+    ],
+    "battery": 57.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (11, 14).",
+    "revealed": [
+     [
+      12,
+      13,
+      "FREE"
+     ],
+     [
+      12,
+      14,
+      "CLUE"
+     ],
+     [
+      12,
+      15,
+      "FREE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 27,
+   "agent_pos": [
+    11,
+    14
+   ],
+   "action": "MOVE_DOWN",
+   "strategy": "ACQUIRE_CLUE",
+   "reason": "Beacon at (12, 14) not yet decoded (1 moves): going to inspect it",
+   "battery": 57.0,
+   "scan_budget": 1,
+   "belief_entropy": 1.931,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.471,
+   "status_belief": {
+    "ACTIVE": 0.9889,
+    "DORMANT": 0.0111
+   },
+   "goal": [
+    12,
+    14
+   ],
+   "plan": [
+    [
+     11,
+     14
+    ],
+    [
+     12,
+     14
+    ]
+   ],
+   "events": [
+    "Beacon sighted at (12, 14)"
+   ],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     11,
+     14
+    ],
+    "battery": 57.0,
+    "scan_budget": 1,
+    "new_obstacles": [],
+    "new_beacons": [
+     [
+      12,
+      14
+     ]
+    ],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (11, 14)."
+   },
+   "outcome": {
+    "agent_pos": [
+     12,
+     14
+    ],
+    "battery": 56.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (12, 14).",
+    "revealed": [
+     [
+      13,
+      13,
+      "FREE"
+     ],
+     [
+      13,
+      14,
+      "FREE"
+     ],
+     [
+      13,
+      15,
+      "FREE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 28,
+   "agent_pos": [
+    12,
+    14
+   ],
+   "action": "INSPECT",
+   "strategy": "ACQUIRE_CLUE",
+   "reason": "Standing on beacon (12, 14): decoding its signal",
+   "battery": 56.0,
+   "scan_budget": 1,
+   "belief_entropy": 1.77,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.488,
+   "status_belief": {
+    "ACTIVE": 0.9904,
+    "DORMANT": 0.0096
+   },
+   "goal": [
+    12,
+    14
+   ],
+   "plan": [],
+   "events": [],
+   "clue_reliability": {},
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     12,
+     14
+    ],
+    "battery": 56.0,
+    "scan_budget": 1,
+    "new_obstacles": [],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (12, 14)."
+   },
+   "outcome": {
+    "agent_pos": [
+     12,
+     14
+    ],
+    "battery": 54.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Inspected beacon at (12, 14): signal decoded.",
+    "revealed": [],
+    "scan_result": null,
+    "clue_payload": {
+     "clue_pos": [
+      12,
+      14
+     ],
+     "estimated_distance": 3.1623,
+     "bearing_vector": [
+      0.9487,
+      0.3162
+     ],
+     "bearing_deg": 161.5651,
+     "noise_sigma": 0.0,
+     "bearing_noise_deg": 0.0
+    },
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 29,
+   "agent_pos": [
+    12,
+    14
+   ],
+   "action": "MOVE_DOWN",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (15, 15): P=0.87, 4 moves away",
+   "battery": 54.0,
+   "scan_budget": 1,
+   "belief_entropy": 0.676,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.874,
+   "status_belief": {
+    "ACTIVE": 0.9962,
+    "DORMANT": 0.0038
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     12,
+     14
+    ],
+    [
+     13,
+     14
+    ],
+    [
+     13,
+     15
+    ],
+    [
+     14,
+     15
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [
+    "Beacon (12, 14) decoded: EVE ~3.2 cells away at bearing 162\u00b0"
+   ],
+   "clue_reliability": {
+    "12,14": 0.9977
+   },
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     12,
+     14
+    ],
+    "battery": 54.0,
+    "scan_budget": 1,
+    "new_obstacles": [],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": {
+     "clue_pos": [
+      12,
+      14
+     ],
+     "estimated_distance": 3.1623,
+     "bearing_vector": [
+      0.9487,
+      0.3162
+     ],
+     "bearing_deg": 161.5651,
+     "noise_sigma": 0.0,
+     "bearing_noise_deg": 0.0
+    },
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Inspected beacon at (12, 14): signal decoded."
+   },
+   "outcome": {
+    "agent_pos": [
+     13,
+     14
+    ],
+    "battery": 53.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (13, 14).",
+    "revealed": [
+     [
+      14,
+      13,
+      "FREE"
+     ],
+     [
+      14,
+      14,
+      "FREE"
+     ],
+     [
+      14,
+      15,
+      "FREE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 30,
+   "agent_pos": [
+    13,
+    14
+   ],
+   "action": "MOVE_DOWN",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "Belief target (15, 15): P=0.93, 3 moves away",
+   "battery": 53.0,
+   "scan_budget": 1,
+   "belief_entropy": 0.381,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 0.926,
+   "status_belief": {
+    "ACTIVE": 0.9966,
+    "DORMANT": 0.0034
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     13,
+     14
+    ],
+    [
+     14,
+     14
+    ],
+    [
+     14,
+     15
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {
+    "12,14": 0.9982
+   },
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     13,
+     14
+    ],
+    "battery": 53.0,
+    "scan_budget": 1,
+    "new_obstacles": [],
+    "new_beacons": [],
+    "eve_in_view": null,
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (13, 14)."
+   },
+   "outcome": {
+    "agent_pos": [
+     14,
+     14
+    ],
+    "battery": 52.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (14, 14).",
+    "revealed": [
+     [
+      15,
+      13,
+      "FREE"
+     ],
+     [
+      15,
+      14,
+      "FREE"
+     ],
+     [
+      15,
+      15,
+      "EVE"
+     ]
+    ],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 31,
+   "agent_pos": [
+    14,
+    14
+   ],
+   "action": "MOVE_RIGHT",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "EVE sighted at (15, 15): closing in (2 moves)",
+   "battery": 52.0,
+   "scan_budget": 1,
+   "belief_entropy": -0.0,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 1.0,
+   "status_belief": {
+    "ACTIVE": 0.9971,
+    "DORMANT": 0.0029
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     14,
+     14
+    ],
+    [
+     14,
+     15
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [
+    "EVE sighted at (15, 15)!"
+   ],
+   "clue_reliability": {
+    "12,14": 0.9987
+   },
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     14,
+     14
+    ],
+    "battery": 52.0,
+    "scan_budget": 1,
+    "new_obstacles": [],
+    "new_beacons": [],
+    "eve_in_view": [
+     15,
+     15
+    ],
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (14, 14)."
+   },
+   "outcome": {
+    "agent_pos": [
+     14,
+     15
+    ],
+    "battery": 51.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (14, 15).",
+    "revealed": [],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "IN_PROGRESS"
+   }
+  },
+  {
+   "step": 32,
+   "agent_pos": [
+    14,
+    15
+   ],
+   "action": "MOVE_DOWN",
+   "strategy": "HUNT_BELIEF_TARGET",
+   "reason": "EVE sighted at (15, 15): closing in (1 moves)",
+   "battery": 51.0,
+   "scan_budget": 1,
+   "belief_entropy": -0.0,
+   "top_candidate": [
+    15,
+    15
+   ],
+   "top_candidate_prob": 1.0,
+   "status_belief": {
+    "ACTIVE": 0.9971,
+    "DORMANT": 0.0029
+   },
+   "goal": [
+    15,
+    15
+   ],
+   "plan": [
+    [
+     14,
+     15
+    ],
+    [
+     15,
+     15
+    ]
+   ],
+   "events": [],
+   "clue_reliability": {
+    "12,14": 0.9987
+   },
+   "flagged_decoys": [],
+   "observation": {
+    "position": [
+     14,
+     15
+    ],
+    "battery": 51.0,
+    "scan_budget": 1,
+    "new_obstacles": [],
+    "new_beacons": [],
+    "eve_in_view": [
+     15,
+     15
+    ],
+    "clue_payload": null,
+    "scan_result": null,
+    "collision": false,
+    "at_dock": false,
+    "recharged": 0.0,
+    "message": "Moved to (14, 15)."
+   },
+   "outcome": {
+    "agent_pos": [
+     15,
+     15
+    ],
+    "battery": 50.0,
+    "scan_budget": 1,
+    "collision": false,
+    "recharged": 0.0,
+    "message": "Moved to (15, 15). Target EVE reached! Mission accomplished!",
+    "revealed": [],
+    "scan_result": null,
+    "clue_payload": null,
+    "status": "SUCCESS"
+   }
+  }
+ ],
+ "evaluation_ground_truth": {
+  "true_eve_pos": [
+   15,
+   15
+  ],
+  "true_eve_status": "ACTIVE",
+  "localization_error": 0.0,
+  "expected_error": 0.0,
+  "status_correct": true,
+  "status_inferred_before_contact": "ACTIVE",
+  "status_inference_correct": true,
+  "true_pos_in_credible_region": true,
+  "decoys": [],
+  "decoys_inspected": [],
+  "decoys_flagged": [],
+  "genuine_flagged": [],
+  "ground_truth": {
+   "eve_pos": [
+    15,
+    15
+   ],
+   "eve_status": "ACTIVE",
+   "obstacles": [
+    [
+     1,
+     3
+    ],
+    [
+     2,
+     3
+    ],
+    [
+     3,
+     3
+    ],
+    [
+     4,
+     3
+    ],
+    [
+     5,
+     3
+    ],
+    [
+     5,
+     4
+    ],
+    [
+     5,
+     5
+    ],
+    [
+     5,
+     6
+    ],
+    [
+     5,
+     7
+    ],
+    [
+     8,
+     2
+    ],
+    [
+     8,
+     3
+    ],
+    [
+     8,
+     4
+    ],
+    [
+     8,
+     8
+    ],
+    [
+     8,
+     9
+    ],
+    [
+     8,
+     10
+    ],
+    [
+     8,
+     11
+    ],
+    [
+     11,
+     5
+    ],
+    [
+     11,
+     6
+    ],
+    [
+     11,
+     7
+    ],
+    [
+     11,
+     8
+    ],
+    [
+     11,
+     12
+    ],
+    [
+     11,
+     13
+    ],
+    [
+     13,
+     1
+    ],
+    [
+     13,
+     2
+    ],
+    [
+     13,
+     3
+    ],
+    [
+     14,
+     10
+    ],
+    [
+     15,
+     10
+    ]
+   ],
+   "clues": [
+    {
+     "pos": [
+      3,
+      7
+     ],
+     "type": "directional_beacon",
+     "noise_sigma": 0.0,
+     "bearing_noise_deg": 0.0
+    },
+    {
+     "pos": [
+      9,
+      6
+     ],
+     "type": "directional_beacon",
+     "noise_sigma": 0.0,
+     "bearing_noise_deg": 0.0
+    },
+    {
+     "pos": [
+      12,
+      14
+     ],
+     "type": "directional_beacon",
+     "noise_sigma": 0.0,
+     "bearing_noise_deg": 0.0
+    }
+   ],
+   "grid_size": [
+    16,
+    16
+   ],
+   "start_pos": [
+    0,
+    0
+   ],
+   "charging_stations": [
+    [
+     0,
+     0
+    ],
+    [
+     9,
+     7
+    ]
+   ]
+  }
+ }
+}

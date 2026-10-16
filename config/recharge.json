@@ -1,0 +1,30 @@
+{
+  "mission_name": "Low battery: sorties from the dock",
+  "grid_size": [14, 14],
+  "start_pos": [7, 0],
+  "charging_stations": [[7, 0]],
+  "eve": { "pos": [12, 11], "status": "DORMANT" },
+  "obstacles": [
+    [3, 4], [4, 4], [5, 4],
+    [9, 4], [10, 4], [11, 4],
+    [6, 8], [7, 8], [8, 8],
+    [2, 11], [3, 11], [11, 9], [12, 9]
+  ],
+  "clues": [],
+  "initial_signal": {
+    "received_at": [7, 0],
+    "strength": 0.12,
+    "timestamp": "2805-07-14T04:00:00Z"
+  },
+  "mission_start": "2805-07-14T06:00:00Z",
+  "sensors": { "sensor_radius": 1, "scan_noise_sigma": 1.0, "strength_noise_sigma": 0.02 },
+  "resources": {
+    "initial_battery": 40.0,
+    "battery_capacity": 40.0,
+    "max_steps": 220,
+    "scan_budget": 1,
+    "recharge_per_action": 20.0,
+    "action_costs": { "move": 1.0, "inspect": 2.0, "scan": 4.0, "recharge": 0.0, "terminate": 0.0 }
+  },
+  "random_seed": 5
+}

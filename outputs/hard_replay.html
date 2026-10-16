@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WALL-E &amp; EVE — mission replay</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --page: #141413;
+    --surface-1: #1d1c1a;
+    --surface-2: #2a2926;
+    --border: #383733;
+    --text-primary: #f0efec;
+    --text-secondary: #c3c2b7;
+    --text-muted: #8f8d86;
+    --walle: #c98500;
+    --eve: #3987e5;
+    --good: #0ca30c;
+    --critical: #d03b3b;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--page); color: var(--text-primary);
+    font: 13px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .app { max-width: 1200px; margin: 0 auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  header h1 { font-size: 17px; margin: 0; letter-spacing: .2px; }
+  header .sub { color: var(--text-secondary); font-size: 12px; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border-radius: 999px;
+    font-weight: 700; font-size: 12px; border: 1px solid var(--border); background: var(--surface-1); }
+  .badge.ok { color: #8fdc8f; border-color: #2d5a2d; }
+  .badge.bad { color: #f2a0a0; border-color: #6b2c2c; }
+  .main { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(290px, 1fr); gap: 10px; }
+  .card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; }
+  .stage { padding: 8px; display: flex; justify-content: center; }
+  canvas#map { display: block; border-radius: 8px; }
+  .panel { padding: 14px 16px; display: flex; flex-direction: column; gap: 11px; min-width: 0; }
+  .stepline { display: flex; justify-content: space-between; color: var(--text-muted); font-size: 11.5px;
+    text-transform: uppercase; letter-spacing: .7px; }
+  .action { font-size: 22px; font-weight: 750; letter-spacing: .3px; }
+  .chip { display: inline-flex; align-items: center; gap: 7px; padding: 4px 11px; border-radius: 999px;
+    font-weight: 650; font-size: 12px; background: var(--surface-2); border: 1px solid var(--border); }
+  .chip i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .reason { font-size: 13px; min-height: 40px; }
+  .events { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; min-height: 20px; }
+  .events li { font-size: 12px; color: var(--text-secondary); padding-left: 14px; position: relative; }
+  .events li::before { content: ""; position: absolute; left: 2px; top: 7px; width: 5px; height: 5px;
+    border-radius: 50%; background: var(--text-muted); }
+  .events li.alert { color: #f4aaaa; } .events li.alert::before { background: var(--critical); }
+  .events li.good { color: #a6e6a6; } .events li.good::before { background: var(--good); }
+  hr { border: 0; border-top: 1px solid var(--border); margin: 0; }
+  .meter { display: grid; grid-template-columns: 96px 1fr 74px; align-items: center; gap: 10px;
+    font-size: 12px; color: var(--text-secondary); }
+  .bar { height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
+  .bar > span { display: block; height: 100%; border-radius: 999px; background: var(--walle); }
+  .value { color: var(--text-primary); font-variant-numeric: tabular-nums; text-align: right; }
+  .pips { display: flex; gap: 6px; }
+  .pips b { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid #199e70; }
+  .pips b.on { background: #199e70; }
+  .status { display: grid; grid-template-columns: 96px 1fr 74px; gap: 10px; align-items: center;
+    font-size: 12px; color: var(--text-secondary); }
+  .split { height: 8px; border-radius: 999px; overflow: hidden; display: flex; background: var(--surface-2); gap: 2px; }
+  .split span { display: block; height: 100%; }
+  .beacons { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-secondary); }
+  .beacons .row { display: flex; justify-content: space-between; gap: 8px; }
+  .beacons .spoof { color: #f4aaaa; font-weight: 650; }
+  .controls { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+  .row1 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  button { font: inherit; color: var(--text-primary); background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+  button:hover { border-color: #5c5a54; }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--eve); outline-offset: 2px; }
+  button.primary { background: var(--walle); color: #141413; border-color: var(--walle); font-weight: 750; min-width: 84px; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .seg button { border: 0; border-radius: 0; background: transparent; padding: 6px 9px; color: var(--text-secondary); }
+  .seg button.on { background: var(--surface-2); color: var(--text-primary); font-weight: 650; }
+  label.toggle { display: inline-flex; gap: 6px; align-items: center; color: var(--text-secondary); font-size: 12px; cursor: pointer; }
+  label.toggle input { accent-color: var(--eve); }
+  label.toggle.disabled { opacity: .45; cursor: not-allowed; }
+  .spacer { flex: 1; }
+  .counter { color: var(--text-secondary); font-variant-numeric: tabular-nums; font-size: 12px; }
+  canvas#timeline { width: 100%; height: 50px; display: block; cursor: pointer; }
+  .log { display: flex; gap: 6px; flex-wrap: wrap; }
+  .log button { font-size: 11.5px; padding: 4px 8px; display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); }
+  .log button i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .log button.on { color: var(--text-primary); border-color: var(--text-muted); background: #34332f; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 11.5px; color: var(--text-muted); padding: 0 4px; }
+  .legend span { display: inline-flex; gap: 6px; align-items: center; }
+  .legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .verdict { padding: 12px 16px; display: none; gap: 6px; flex-direction: column; border-left: 4px solid var(--good); }
+  .verdict.show { display: flex; }
+  .verdict.bad { border-left-color: var(--critical); }
+  .verdict b { font-size: 14px; }
+  .verdict p { margin: 0; color: var(--text-secondary); }
+  @media (max-width: 780px) { .main { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <h1 id="title">WALL-E &amp; EVE</h1>
+      <div class="sub" id="subtitle"></div>
+    </div>
+    <span class="badge" id="outcome"></span>
+  </header>
+
+  <div class="main">
+    <div class="card stage" id="stage"><canvas id="map" role="img" aria-label="Animated mission map"></canvas></div>
+    <div class="card panel" aria-live="polite">
+      <div class="stepline"><span id="stepNo">Start</span><span id="posLabel"></span></div>
+      <div class="action" id="action">BRIEFING</div>
+      <div><span class="chip" id="chip"><i></i><span>Briefing</span></span></div>
+      <div class="reason" id="reason"></div>
+      <ul class="events" id="events"></ul>
+      <hr>
+      <div class="meter"><span>Battery</span><div class="bar"><span id="batteryBar"></span></div><span class="value" id="batteryVal"></span></div>
+      <div class="meter"><span>Pulse scans</span><div class="pips" id="pips"></div><span class="value" id="scanVal"></span></div>
+      <div class="meter"><span>Best guess</span><div class="bar"><span id="topBar" style="background: var(--eve)"></span></div><span class="value" id="topVal"></span></div>
+      <div class="meter"><span>Uncertainty</span><div class="bar"><span id="entBar" style="background: #8f8d86"></span></div><span class="value" id="entVal"></span></div>
+      <div class="status"><span>EVE status</span>
+        <div class="split"><span id="pa" style="background: var(--eve)"></span><span id="pd" style="background: #8f8d86"></span></div>
+        <span class="value" id="statusVal"></span></div>
+      <div class="beacons" id="beacons"></div>
+    </div>
+  </div>
+
+  <div class="card verdict" id="verdict"></div>
+
+  <div class="card controls">
+    <div class="row1">
+      <button class="primary" id="play" aria-label="Play or pause (space)">▶ Play</button>
+      <button id="back" aria-label="Previous step (left arrow)">⏮</button>
+      <button id="fwd" aria-label="Next step (right arrow)">⏭</button>
+      <button id="restart" aria-label="Restart (home)">↺</button>
+      <div class="seg" id="speed" role="group" aria-label="Playback speed"></div>
+      <label class="toggle"><input type="checkbox" id="showBelief" checked> Belief heatmap</label>
+      <label class="toggle"><input type="checkbox" id="showPlan" checked> Planned route</label>
+      <label class="toggle disabled" id="truthLabel" title="Unlocks when the replay reaches the end">
+        <input type="checkbox" id="showTruth" disabled> Evaluation view (ground truth)</label>
+      <span class="spacer"></span>
+      <span class="counter" id="counter"></span>
+    </div>
+    <canvas id="timeline" aria-label="Strategy timeline: click or drag to jump to a step"></canvas>
+    <div class="log" id="log" aria-label="Strategy changes"></div>
+  </div>
+  <div class="legend" id="legend"></div>
+</div>
+
+<script id="mission-data" type="application/json">{"autoplay":true,"mission":{"name":"Hard maze with stale coordinates","config":"hard","agent":"walle","rows":16,"cols":16,"start":[0,0],"docks":[[0,0],[9,7]],"capacity":90.0,"scan_budget":3,"initial_signal":{"received_at":[0,0],"approx_pos":[12,12],"pos_sigma":2.5,"strength":0.06,"timestamp":"2805-07-14T04:30:00Z"},"signal_age":90.0},"initial":{"pos":[0,0],"revealed":[[0,0,"FREE"],[0,1,"FREE"],[1,0,"FREE"],[1,1,"FREE"]],"battery":90.0,"scans":3,"after":{"belief":[0,0,1,2,2,4,7,10,14,19,23,27,30,34,37,39,0,0,2,2,3,5,8,13,18,24,29,34,38,43,46,49,1,2,2,3,4,7,11,17,23,30,37,43,49,54,58,61,2,2,3,4,6,10,15,22,30,39,47,54,61,68,73,76,2,3,4,6,9,14,21,30,39,49,59,68,77,85,91,94,4,5,7,10,14,21,29,40,51,62,74,85,95,104,111,114,7,8,11,15,21,29,40,51,64,77,91,104,116,127,134,136,10,13,17,22,30,40,51,65,79,94,110,125,140,151,158,159,14,18,23,30,39,51,64,79,96,113,131,149,164,176,183,182,19,24,30,39,49,62,77,94,113,133,153,173,190,201,206,203,23,29,37,47,59,74,91,110,131,153,176,196,213,223,226,220,27,34,43,54,68,85,104,125,149,173,196,217,232,241,241,233,30,38,49,61,77,95,116,140,164,190,213,232,246,252,249,239,34,43,54,68,85,104,127,151,176,201,223,241,252,255,251,239,37,46,58,73,91,111,134,158,183,206,226,241,249,251,244,231,39,49,61,76,94,114,136,159,182,203,220,233,239,239,231,218],"top":[13,13],"top_p":0.011,"entropy":7.427,"status":{"ACTIVE":0.3182,"DORMANT":0.6818},"flagged":[],"reliability":{}}},"steps":[{"step":0,"action":"SCAN","strategy":"PULSE_SCAN","reason":"Belief entropy 7.4 bits: first pulse scan to measure EVE's range and signal strength","events":[],"from":[0,0],"to":[0,0],"battery":[90.0,86.0],"scans_left":2,"recharged":0.0,"collision":false,"revealed":[],"scan":{"pos":[0,0],"distance":20.4231,"strength":0.0298},"decoded":null,"goal":[0,0],"plan":[],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,12,0,0,0,0,0,0,0,0,0,0,0,0,0,1,7,44,0,0,0,0,0,0,0,0,0,0,0,0,1,6,34,119,0,0,0,0,0,0,0,0,0,0,0,1,6,31,109,217,0,0,0,0,0,0,0,0,0,0,1,7,34,109,215,255,0,0,0,0,0,0,0,0,0,2,12,44,119,217,255,185],"top":[14,15],"top_p":0.125,"entropy":3.79,"status":{"ACTIVE":0.0369,"DORMANT":0.9631},"flagged":[],"reliability":{}}},{"step":1,"action":"MOVE_RIGHT","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (14, 15): P=0.12, 29 moves away","events":["Pulse scan from (0, 0): EVE ~20.4 cells away, strength 0.030"],"from":[0,0],"to":[0,1],"battery":[86.0,85.0],"scans_left":2,"recharged":0.0,"collision":false,"revealed":[[0,2,"FREE"],[1,2,"FREE"]],"scan":null,"decoded":null,"goal":[14,15],"plan":[[0,0],[0,1],[1,1],[1,2],[2,2],[2,3],[3,3],[3,4],[4,4],[4,5],[5,5],[5,6],[6,6],[6,7],[7,7],[7,8],[8,8],[8,9],[9,9],[9,10],[10,10],[10,11],[11,11],[11,12],[12,12],[12,13],[13,13],[13,14],[14,14],[14,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,12,0,0,0,0,0,0,0,0,0,0,0,0,0,1,7,44,0,0,0,0,0,0,0,0,0,0,0,0,1,6,34,119,0,0,0,0,0,0,0,0,0,0,0,1,6,31,109,217,0,0,0,0,0,0,0,0,0,0,1,7,34,109,215,255,0,0,0,0,0,0,0,0,0,2,12,44,119,217,255,185],"top":[14,15],"top_p":0.125,"entropy":3.79,"status":{"ACTIVE":0.0369,"DORMANT":0.9631},"flagged":[],"reliability":{}}},{"step":2,"action":"MOVE_RIGHT","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (14, 15): P=0.12, 28 moves away","events":[],"from":[0,1],"to":[0,2],"battery":[85.0,84.0],"scans_left":2,"recharged":0.0,"collision":false,"revealed":[[0,3,"FREE"],[1,3,"OBSTACLE"]],"scan":null,"decoded":null,"goal":[14,15],"plan":[[0,1],[0,2],[1,2],[1,3],[2,3],[2,4],[3,4],[3,5],[4,5],[4,6],[5,6],[5,7],[6,7],[6,8],[7,8],[7,9],[8,9],[8,10],[9,10],[9,11],[10,11],[10,12],[11,12],[11,13],[12,13],[12,14],[13,14],[13,15],[14,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,12,0,0,0,0,0,0,0,0,0,0,0,0,0,1,7,44,0,0,0,0,0,0,0,0,0,0,0,0,1,6,34,119,0,0,0,0,0,0,0,0,0,0,0,1,6,31,109,217,0,0,0,0,0,0,0,0,0,0,1,7,34,109,215,255,0,0,0,0,0,0,0,0,0,2,12,44,119,217,255,185],"top":[14,15],"top_p":0.125,"entropy":3.79,"status":{"ACTIVE":0.0369,"DORMANT":0.9631},"flagged":[],"reliability":{}}},{"step":3,"action":"MOVE_DOWN","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (14, 15): P=0.12, 27 moves away","events":[],"from":[0,2],"to":[1,2],"battery":[84.0,83.0],"scans_left":2,"recharged":0.0,"collision":false,"revealed":[[2,1,"FREE"],[2,2,"FREE"],[2,3,"OBSTACLE"]],"scan":null,"decoded":null,"goal":[14,15],"plan":[[0,2],[1,2],[2,2],[2,3],[2,4],[3,4],[3,5],[4,5],[4,6],[5,6],[5,7],[6,7],[6,8],[7,8],[7,9],[8,9],[8,10],[9,10],[9,11],[10,11],[10,12],[11,12],[11,13],[12,13],[12,14],[13,14],[13,15],[14,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,12,0,0,0,0,0,0,0,0,0,0,0,0,0,1,7,44,0,0,0,0,0,0,0,0,0,0,0,0,1,6,34,119,0,0,0,0,0,0,0,0,0,0,0,1,6,31,109,217,0,0,0,0,0,0,0,0,0,0,1,7,34,109,215,255,0,0,0,0,0,0,0,0,0,2,12,44,119,217,255,185],"top":[14,15],"top_p":0.125,"entropy":3.79,"status":{"ACTIVE":0.0369,"DORMANT":0.9631},"flagged":[],"reliability":{}}},{"step":4,"action":"MOVE_DOWN","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (14, 15): P=0.12, 26 moves away","events":[],"from":[1,2],"to":[2,2],"battery":[83.0,82.0],"scans_left":2,"recharged":0.0,"collision":false,"revealed":[[3,1,"FREE"],[3,2,"FREE"],[3,3,"OBSTACLE"]],"scan":null,"decoded":null,"goal":[14,15],"plan":[[1,2],[2,2],[3,2],[3,3],[3,4],[3,5],[4,5],[4,6],[5,6],[5,7],[6,7],[6,8],[7,8],[7,9],[8,9],[8,10],[9,10],[9,11],[10,11],[10,12],[11,12],[11,13],[12,13],[12,14],[13,14],[13,15],[14,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,12,0,0,0,0,0,0,0,0,0,0,0,0,0,1,7,44,0,0,0,0,0,0,0,0,0,0,0,0,1,6,34,119,0,0,0,0,0,0,0,0,0,0,0,1,6,31,109,217,0,0,0,0,0,0,0,0,0,0,1,7,34,109,215,255,0,0,0,0,0,0,0,0,0,2,12,44,119,217,255,185],"top":[14,15],"top_p":0.125,"entropy":3.79,"status":{"ACTIVE":0.0369,"DORMANT":0.9631},"flagged":[],"reliability":{}}},{"step":5,"action":"MOVE_DOWN","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (14, 15): P=0.12, 25 moves away","events":[],"from":[2,2],"to":[3,2],"battery":[82.0,81.0],"scans_left":2,"recharged":0.0,"collision":false,"revealed":[[4,1,"FREE"],[4,2,"FREE"],[4,3,"OBSTACLE"]],"scan":null,"decoded":null,"goal":[14,15],"plan":[[2,2],[3,2],[4,2],[4,3],[4,4],[4,5],[5,5],[5,6],[6,6],[6,7],[7,7],[7,8],[8,8],[8,9],[9,9],[9,10],[10,10],[10,11],[11,11],[11,12],[12,12],[12,13],[13,13],[13,14],[14,14],[14,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,12,0,0,0,0,0,0,0,0,0,0,0,0,0,1,7,44,0,0,0,0,0,0,0,0,0,0,0,0,1,6,34,119,0,0,0,0,0,0,0,0,0,0,0,1,6,31,109,217,0,0,0,0,0,0,0,0,0,0,1,7,34,109,215,255,0,0,0,0,0,0,0,0,0,2,12,44,119,217,255,185],"top":[14,15],"top_p":0.125,"entropy":3.79,"status":{"ACTIVE":0.0369,"DORMANT":0.9631},"flagged":[],"reliability":{}}},{"step":6,"action":"SCAN","strategy":"PULSE_SCAN","reason":"Belief entropy 3.8 bits: scanning from a new vantage point 3 cells from the last scan to triangulate","events":[],"from":[3,2],"to":[3,2],"battery":[81.0,77.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[],"scan":{"pos":[3,2],"distance":18.2951,"strength":0.1244},"decoded":null,"goal":[3,2],"plan":[],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,124,0,0,0,0,0,0,0,0,0,0,0,0,1,14,116,255],"top":[15,15],"top_p":0.47,"entropy":1.949,"status":{"ACTIVE":0.9883,"DORMANT":0.0117},"flagged":[],"reliability":{}}},{"step":7,"action":"MOVE_DOWN","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (15, 15): P=0.47, 25 moves away","events":["Pulse scan from (3, 2): EVE ~18.3 cells away, strength 0.124"],"from":[3,2],"to":[4,2],"battery":[77.0,76.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[5,1,"FREE"],[5,2,"FREE"],[5,3,"OBSTACLE"]],"scan":null,"decoded":null,"goal":[15,15],"plan":[[3,2],[4,2],[5,2],[5,3],[5,4],[5,5],[6,5],[6,6],[7,6],[7,7],[8,7],[8,8],[9,8],[9,9],[10,9],[10,10],[11,10],[11,11],[12,11],[12,12],[13,12],[13,13],[14,13],[14,14],[15,14],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,124,0,0,0,0,0,0,0,0,0,0,0,0,1,14,116,255],"top":[15,15],"top_p":0.47,"entropy":1.949,"status":{"ACTIVE":0.9883,"DORMANT":0.0117},"flagged":[],"reliability":{}}},{"step":8,"action":"MOVE_DOWN","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (15, 15): P=0.47, 24 moves away","events":[],"from":[4,2],"to":[5,2],"battery":[76.0,75.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[6,1,"FREE"],[6,2,"FREE"],[6,3,"FREE"]],"scan":null,"decoded":null,"goal":[15,15],"plan":[[4,2],[5,2],[6,2],[6,3],[6,4],[6,5],[7,5],[7,6],[8,6],[8,7],[9,7],[9,8],[9,9],[10,9],[10,10],[11,10],[11,11],[12,11],[12,12],[13,12],[13,13],[14,13],[14,14],[15,14],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,124,0,0,0,0,0,0,0,0,0,0,0,0,1,14,116,255],"top":[15,15],"top_p":0.47,"entropy":1.949,"status":{"ACTIVE":0.9883,"DORMANT":0.0117},"flagged":[],"reliability":{}}},{"step":9,"action":"MOVE_DOWN","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (15, 15): P=0.47, 23 moves away","events":[],"from":[5,2],"to":[6,2],"battery":[75.0,74.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[7,1,"FREE"],[7,2,"FREE"],[7,3,"FREE"]],"scan":null,"decoded":null,"goal":[15,15],"plan":[[5,2],[6,2],[6,3],[6,4],[7,4],[7,5],[8,5],[8,6],[8,7],[9,7],[9,8],[10,8],[10,9],[11,9],[11,10],[12,10],[12,11],[12,12],[13,12],[13,13],[14,13],[14,14],[15,14],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,124,0,0,0,0,0,0,0,0,0,0,0,0,1,14,116,255],"top":[15,15],"top_p":0.47,"entropy":1.949,"status":{"ACTIVE":0.9883,"DORMANT":0.0117},"flagged":[],"reliability":{}}},{"step":10,"action":"MOVE_RIGHT","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (15, 15): P=0.47, 22 moves away","events":[],"from":[6,2],"to":[6,3],"battery":[74.0,73.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[5,4,"OBSTACLE"],[6,4,"FREE"],[7,4,"FREE"]],"scan":null,"decoded":null,"goal":[15,15],"plan":[[6,2],[6,3],[7,3],[7,4],[8,4],[8,5],[8,6],[9,6],[9,7],[10,7],[10,8],[10,9],[11,9],[11,10],[12,10],[12,11],[13,11],[13,12],[13,13],[14,13],[14,14],[15,14],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,124,0,0,0,0,0,0,0,0,0,0,0,0,1,14,116,255],"top":[15,15],"top_p":0.47,"entropy":1.949,"status":{"ACTIVE":0.9883,"DORMANT":0.0117},"flagged":[],"reliability":{}}},{"step":11,"action":"MOVE_RIGHT","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (15, 15): P=0.47, 21 moves away","events":[],"from":[6,3],"to":[6,4],"battery":[73.0,72.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[5,5,"OBSTACLE"],[6,5,"FREE"],[7,5,"FREE"]],"scan":null,"decoded":null,"goal":[15,15],"plan":[[6,3],[6,4],[7,4],[7,5],[8,5],[8,6],[9,6],[9,7],[9,8],[10,8],[10,9],[11,9],[11,10],[12,10],[12,11],[12,12],[13,12],[13,13],[14,13],[14,14],[15,14],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,124,0,0,0,0,0,0,0,0,0,0,0,0,1,14,116,255],"top":[15,15],"top_p":0.47,"entropy":1.949,"status":{"ACTIVE":0.9883,"DORMANT":0.0117},"flagged":[],"reliability":{}}},{"step":12,"action":"MOVE_RIGHT","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (15, 15): P=0.47, 20 moves away","events":[],"from":[6,4],"to":[6,5],"battery":[72.0,71.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[5,6,"OBSTACLE"],[6,6,"FREE"],[7,6,"FREE"]],"scan":null,"decoded":null,"goal":[15,15],"plan":[[6,4],[6,5],[7,5],[7,6],[8,6],[8,7],[9,7],[9,8],[10,8],[10,9],[10,10],[11,10],[11,11],[12,11],[12,12],[13,12],[13,13],[14,13],[14,14],[15,14],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,124,0,0,0,0,0,0,0,0,0,0,0,0,1,14,116,255],"top":[15,15],"top_p":0.47,"entropy":1.949,"status":{"ACTIVE":0.9883,"DORMANT":0.0117},"flagged":[],"reliability":{}}},{"step":13,"action":"MOVE_RIGHT","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (15, 15): P=0.47, 19 moves away","events":[],"from":[6,5],"to":[6,6],"battery":[71.0,70.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[5,7,"OBSTACLE"],[6,7,"FREE"],[7,7,"FREE"]],"scan":null,"decoded":null,"goal":[15,15],"plan":[[6,5],[6,6],[7,6],[7,7],[8,7],[8,8],[9,8],[9,9],[10,9],[10,10],[11,10],[11,11],[12,11],[12,12],[13,12],[13,13],[14,13],[14,14],[15,14],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,124,0,0,0,0,0,0,0,0,0,0,0,0,1,14,116,255],"top":[15,15],"top_p":0.47,"entropy":1.949,"status":{"ACTIVE":0.9883,"DORMANT":0.0117},"flagged":[],"reliability":{}}},{"step":14,"action":"MOVE_RIGHT","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (15, 15): P=0.47, 18 moves away","events":[],"from":[6,6],"to":[6,7],"battery":[70.0,69.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[5,8,"FREE"],[6,8,"FREE"],[7,8,"FREE"]],"scan":null,"decoded":null,"goal":[15,15],"plan":[[6,6],[6,7],[7,7],[7,8],[8,8],[8,9],[9,9],[9,10],[10,10],[10,11],[11,11],[11,12],[12,12],[12,13],[13,13],[13,14],[14,14],[14,15],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,124,0,0,0,0,0,0,0,0,0,0,0,0,1,14,116,255],"top":[15,15],"top_p":0.47,"entropy":1.949,"status":{"ACTIVE":0.9883,"DORMANT":0.0117},"flagged":[],"reliability":{}}},{"step":15,"action":"MOVE_DOWN","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (15, 15): P=0.47, 17 moves away","events":[],"from":[6,7],"to":[7,7],"battery":[69.0,68.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[8,6,"FREE"],[8,7,"FREE"],[8,8,"OBSTACLE"]],"scan":null,"decoded":null,"goal":[15,15],"plan":[[6,7],[7,7],[7,8],[8,8],[8,9],[9,9],[9,10],[10,10],[10,11],[11,11],[11,12],[12,12],[12,13],[13,13],[13,14],[14,14],[14,15],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,124,0,0,0,0,0,0,0,0,0,0,0,0,1,14,116,255],"top":[15,15],"top_p":0.47,"entropy":1.949,"status":{"ACTIVE":0.9883,"DORMANT":0.0117},"flagged":[],"reliability":{}}},{"step":16,"action":"MOVE_RIGHT","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (15, 15): P=0.47, 16 moves away","events":[],"from":[7,7],"to":[7,8],"battery":[68.0,67.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[6,9,"FREE"],[7,9,"FREE"],[8,9,"OBSTACLE"]],"scan":null,"decoded":null,"goal":[15,15],"plan":[[7,7],[7,8],[7,9],[8,9],[9,9],[9,10],[10,10],[10,11],[11,11],[11,12],[12,12],[12,13],[13,13],[13,14],[14,14],[14,15],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,124,0,0,0,0,0,0,0,0,0,0,0,0,1,14,116,255],"top":[15,15],"top_p":0.47,"entropy":1.949,"status":{"ACTIVE":0.9883,"DORMANT":0.0117},"flagged":[],"reliability":{}}},{"step":17,"action":"MOVE_RIGHT","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (15, 15): P=0.47, 15 moves away","events":[],"from":[7,8],"to":[7,9],"battery":[67.0,66.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[6,10,"FREE"],[7,10,"FREE"],[8,10,"OBSTACLE"]],"scan":null,"decoded":null,"goal":[15,15],"plan":[[7,8],[7,9],[7,10],[8,10],[9,10],[10,10],[10,11],[11,11],[11,12],[12,12],[12,13],[13,13],[13,14],[14,14],[14,15],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,124,0,0,0,0,0,0,0,0,0,0,0,0,1,14,116,255],"top":[15,15],"top_p":0.47,"entropy":1.949,"status":{"ACTIVE":0.9883,"DORMANT":0.0117},"flagged":[],"reliability":{}}},{"step":18,"action":"MOVE_RIGHT","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (15, 15): P=0.47, 14 moves away","events":[],"from":[7,9],"to":[7,10],"battery":[66.0,65.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[6,11,"FREE"],[7,11,"FREE"],[8,11,"OBSTACLE"]],"scan":null,"decoded":null,"goal":[15,15],"plan":[[7,9],[7,10],[7,11],[8,11],[9,11],[10,11],[10,12],[11,12],[12,12],[12,13],[13,13],[13,14],[14,14],[14,15],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,124,0,0,0,0,0,0,0,0,0,0,0,0,1,14,116,255],"top":[15,15],"top_p":0.47,"entropy":1.949,"status":{"ACTIVE":0.9883,"DORMANT":0.0117},"flagged":[],"reliability":{}}},{"step":19,"action":"MOVE_RIGHT","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (15, 15): P=0.47, 13 moves away","events":[],"from":[7,10],"to":[7,11],"battery":[65.0,64.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[6,12,"FREE"],[7,12,"FREE"],[8,12,"FREE"]],"scan":null,"decoded":null,"goal":[15,15],"plan":[[7,10],[7,11],[7,12],[8,12],[9,12],[10,12],[11,12],[11,13],[12,13],[13,13],[13,14],[14,14],[14,15],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,124,0,0,0,0,0,0,0,0,0,0,0,0,1,14,116,255],"top":[15,15],"top_p":0.47,"entropy":1.949,"status":{"ACTIVE":0.9883,"DORMANT":0.0117},"flagged":[],"reliability":{}}},{"step":20,"action":"MOVE_RIGHT","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (15, 15): P=0.47, 12 moves away","events":[],"from":[7,11],"to":[7,12],"battery":[64.0,63.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[6,13,"FREE"],[7,13,"FREE"],[8,13,"FREE"]],"scan":null,"decoded":null,"goal":[15,15],"plan":[[7,11],[7,12],[8,12],[9,12],[10,12],[10,13],[11,13],[12,13],[12,14],[13,14],[14,14],[14,15],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,124,0,0,0,0,0,0,0,0,0,0,0,0,1,14,116,255],"top":[15,15],"top_p":0.47,"entropy":1.949,"status":{"ACTIVE":0.9883,"DORMANT":0.0117},"flagged":[],"reliability":{}}},{"step":21,"action":"MOVE_DOWN","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (15, 15): P=0.47, 11 moves away","events":[],"from":[7,12],"to":[8,12],"battery":[63.0,62.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[9,11,"FREE"],[9,12,"FREE"],[9,13,"FREE"]],"scan":null,"decoded":null,"goal":[15,15],"plan":[[7,12],[8,12],[8,13],[9,13],[10,13],[11,13],[11,14],[12,14],[13,14],[14,14],[14,15],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,124,0,0,0,0,0,0,0,0,0,0,0,0,1,14,116,255],"top":[15,15],"top_p":0.47,"entropy":1.949,"status":{"ACTIVE":0.9883,"DORMANT":0.0117},"flagged":[],"reliability":{}}},{"step":22,"action":"MOVE_DOWN","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (15, 15): P=0.47, 10 moves away","events":[],"from":[8,12],"to":[9,12],"battery":[62.0,61.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[10,11,"FREE"],[10,12,"FREE"],[10,13,"FREE"]],"scan":null,"decoded":null,"goal":[15,15],"plan":[[8,12],[9,12],[9,13],[10,13],[11,13],[11,14],[12,14],[13,14],[14,14],[14,15],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,124,0,0,0,0,0,0,0,0,0,0,0,0,1,14,116,255],"top":[15,15],"top_p":0.47,"entropy":1.949,"status":{"ACTIVE":0.9883,"DORMANT":0.0117},"flagged":[],"reliability":{}}},{"step":23,"action":"MOVE_DOWN","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (15, 15): P=0.47, 9 moves away","events":[],"from":[9,12],"to":[10,12],"battery":[61.0,60.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[11,11,"FREE"],[11,12,"OBSTACLE"],[11,13,"OBSTACLE"]],"scan":null,"decoded":null,"goal":[15,15],"plan":[[9,12],[10,12],[10,13],[11,13],[12,13],[12,14],[13,14],[14,14],[14,15],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,124,0,0,0,0,0,0,0,0,0,0,0,0,1,14,116,255],"top":[15,15],"top_p":0.47,"entropy":1.949,"status":{"ACTIVE":0.9883,"DORMANT":0.0117},"flagged":[],"reliability":{}}},{"step":24,"action":"MOVE_RIGHT","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (15, 15): P=0.47, 8 moves away","events":[],"from":[10,12],"to":[10,13],"battery":[60.0,59.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[9,14,"FREE"],[10,14,"FREE"],[11,14,"FREE"]],"scan":null,"decoded":null,"goal":[15,15],"plan":[[10,12],[10,13],[10,14],[11,14],[12,14],[13,14],[14,14],[14,15],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,124,0,0,0,0,0,0,0,0,0,0,0,0,1,14,116,255],"top":[15,15],"top_p":0.47,"entropy":1.949,"status":{"ACTIVE":0.9883,"DORMANT":0.0117},"flagged":[],"reliability":{}}},{"step":25,"action":"MOVE_RIGHT","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (15, 15): P=0.47, 7 moves away","events":[],"from":[10,13],"to":[10,14],"battery":[59.0,58.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[9,15,"FREE"],[10,15,"FREE"],[11,15,"FREE"]],"scan":null,"decoded":null,"goal":[15,15],"plan":[[10,13],[10,14],[11,14],[12,14],[13,14],[14,14],[14,15],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,124,0,0,0,0,0,0,0,0,0,0,0,0,1,14,116,255],"top":[15,15],"top_p":0.47,"entropy":1.947,"status":{"ACTIVE":0.9884,"DORMANT":0.0116},"flagged":[],"reliability":{}}},{"step":26,"action":"MOVE_DOWN","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (15, 15): P=0.47, 6 moves away","events":[],"from":[10,14],"to":[11,14],"battery":[58.0,57.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[12,13,"FREE"],[12,14,"CLUE"],[12,15,"FREE"]],"scan":null,"decoded":null,"goal":[15,15],"plan":[[10,14],[11,14],[12,14],[12,15],[13,15],[14,15],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,124,0,0,0,0,0,0,0,0,0,0,0,0,1,14,116,255],"top":[15,15],"top_p":0.471,"entropy":1.931,"status":{"ACTIVE":0.9889,"DORMANT":0.0111},"flagged":[],"reliability":{}}},{"step":27,"action":"MOVE_DOWN","strategy":"ACQUIRE_CLUE","reason":"Beacon at (12, 14) not yet decoded (1 moves): going to inspect it","events":["Beacon sighted at (12, 14)"],"from":[11,14],"to":[12,14],"battery":[57.0,56.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[13,13,"FREE"],[13,14,"FREE"],[13,15,"FREE"]],"scan":null,"decoded":null,"goal":[12,14],"plan":[[11,14],[12,14]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,124,0,0,0,0,0,0,0,0,0,0,0,0,1,14,116,255],"top":[15,15],"top_p":0.488,"entropy":1.77,"status":{"ACTIVE":0.9904,"DORMANT":0.0096},"flagged":[],"reliability":{}}},{"step":28,"action":"INSPECT","strategy":"ACQUIRE_CLUE","reason":"Standing on beacon (12, 14): decoding its signal","events":[],"from":[12,14],"to":[12,14],"battery":[56.0,54.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[],"scan":null,"decoded":{"pos":[12,14],"distance":3.1623,"vector":[0.9487,0.3162]},"goal":[12,14],"plan":[],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,20,255],"top":[15,15],"top_p":0.874,"entropy":0.676,"status":{"ACTIVE":0.9962,"DORMANT":0.0038},"flagged":[],"reliability":{"12,14":0.9977}}},{"step":29,"action":"MOVE_DOWN","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (15, 15): P=0.87, 4 moves away","events":["Beacon (12, 14) decoded: EVE ~3.2 cells away at bearing 162\u00b0"],"from":[12,14],"to":[13,14],"battery":[54.0,53.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[14,13,"FREE"],[14,14,"FREE"],[14,15,"FREE"]],"scan":null,"decoded":null,"goal":[15,15],"plan":[[12,14],[13,14],[13,15],[14,15],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,20,255],"top":[15,15],"top_p":0.926,"entropy":0.381,"status":{"ACTIVE":0.9966,"DORMANT":0.0034},"flagged":[],"reliability":{"12,14":0.9982}}},{"step":30,"action":"MOVE_DOWN","strategy":"HUNT_BELIEF_TARGET","reason":"Belief target (15, 15): P=0.93, 3 moves away","events":[],"from":[13,14],"to":[14,14],"battery":[53.0,52.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[[15,13,"FREE"],[15,14,"FREE"],[15,15,"EVE"]],"scan":null,"decoded":null,"goal":[15,15],"plan":[[13,14],[14,14],[14,15],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255],"top":[15,15],"top_p":1.0,"entropy":-0.0,"status":{"ACTIVE":0.9971,"DORMANT":0.0029},"flagged":[],"reliability":{"12,14":0.9987}}},{"step":31,"action":"MOVE_RIGHT","strategy":"HUNT_BELIEF_TARGET","reason":"EVE sighted at (15, 15): closing in (2 moves)","events":["EVE sighted at (15, 15)!"],"from":[14,14],"to":[14,15],"battery":[52.0,51.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[],"scan":null,"decoded":null,"goal":[15,15],"plan":[[14,14],[14,15],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255],"top":[15,15],"top_p":1.0,"entropy":-0.0,"status":{"ACTIVE":0.9971,"DORMANT":0.0029},"flagged":[],"reliability":{"12,14":0.9987}}},{"step":32,"action":"MOVE_DOWN","strategy":"HUNT_BELIEF_TARGET","reason":"EVE sighted at (15, 15): closing in (1 moves)","events":[],"from":[14,15],"to":[15,15],"battery":[51.0,50.0],"scans_left":1,"recharged":0.0,"collision":false,"revealed":[],"scan":null,"decoded":null,"goal":[15,15],"plan":[[14,15],[15,15]],"after":{"belief":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255],"top":[15,15],"top_p":1.0,"entropy":-0.0,"status":{"ACTIVE":1.0,"DORMANT":0.0},"flagged":[],"reliability":{"12,14":0.9987}}}],"transitions":[[0,"PULSE_SCAN","Belief entropy 7.4 bits: first pulse scan to measure EVE's range and signal strength"],[1,"HUNT_BELIEF_TARGET","Belief target (14, 15): P=0.12, 29 moves away"],[6,"PULSE_SCAN","Belief entropy 3.8 bits: scanning from a new vantage point 3 cells from the last scan to triangulate"],[7,"HUNT_BELIEF_TARGET","Belief target (15, 15): P=0.47, 25 moves away"],[27,"ACQUIRE_CLUE","Beacon at (12, 14) not yet decoded (1 moves): going to inspect it"],[29,"HUNT_BELIEF_TARGET","Belief target (15, 15): P=0.87, 4 moves away"],[31,"HUNT_BELIEF_TARGET","Re-plan after EVE sighted at (15, 15)!: EVE sighted at (15, 15): closing in (2 moves)"]],"outcome":{"status":"SUCCESS","success":true,"steps":33,"battery_remaining":50.0,"recharges":0,"conclusion":"EVE_FOUND","map_estimate":[15,15],"map_probability":1.0,"status_estimate":"ACTIVE","status_confidence":1.0,"recommendation":"EVE is ACTIVE at (15, 15): hand over the plant and escort her to the dock. Nearest dock is 14 moves away; battery left 50 is enough to escort her back."},"truth":{"eve":[15,15],"eve_status":"ACTIVE","obstacles":[[1,3],[2,3],[3,3],[4,3],[5,3],[5,4],[5,5],[5,6],[5,7],[8,2],[8,3],[8,4],[8,8],[8,9],[8,10],[8,11],[11,5],[11,6],[11,7],[11,8],[11,12],[11,13],[13,1],[13,2],[13,3],[14,10],[15,10]],"clues":[{"pos":[3,7],"type":"directional_beacon"},{"pos":[9,6],"type":"directional_beacon"},{"pos":[12,14],"type":"directional_beacon"}]},"strategy_colors":{"HUNT_BELIEF_TARGET":"#3987e5","ACQUIRE_CLUE":"#d95926","PULSE_SCAN":"#199e70","EXPLORE_FOR_CLUES":"#c98500","RETURN_TO_CHARGE":"#d55181","MISSION_COMPLETE":"#008300","ABORT_UNREACHABLE":"#9085e9"},"strategy_labels":{"HUNT_BELIEF_TARGET":"Hunt belief target","ACQUIRE_CLUE":"Acquire beacon","PULSE_SCAN":"Pulse scan","EXPLORE_FOR_CLUES":"Explore","RETURN_TO_CHARGE":"Return to charge","MISSION_COMPLETE":"Mission complete","ABORT_UNREACHABLE":"Abort: unreachable"}}</script>
+<script>
+(() => {
+  "use strict";
+  const D = JSON.parse(document.getElementById("mission-data").textContent);
+  const M = D.mission, STEPS = D.steps, N = STEPS.length, ROWS = M.rows, COLS = M.cols;
+  const COLORS = D.strategy_colors, LABELS = D.strategy_labels;
+  const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const C = {
+    page: "#141413", fog: "#0e0e0d", fogLine: "#1b1a18", free: "#2b2a26", visited: "#353430",
+    obstacle: "#5a5650", obstacleTop: "#77726a", grid: "rgba(255,255,255,0.045)", label: "#8f8d86",
+    beacon: "#f0efec", decoded: "#d95926", critical: "#d03b3b", scan: "#199e70", dock: "#0ca30c",
+    walle: "#c98500", walleDark: "#3d3b38", eve: "#3987e5", text: "#f0efec",
+  };
+  const key = (r, c) => r + "," + c;
+  const lerp = (a, b, f) => a + (b - a) * f;
+  const ease = f => (REDUCED ? 1 : f < 0.5 ? 2 * f * f : 1 - Math.pow(-2 * f + 2, 2) / 2);
+
+  // ------------------------------------------------------------------ frames
+  // frame i = WALL-E's knowledge after i steps (0..N); belief arrays decoded once.
+  const decode = q => (q ? Float32Array.from(q, v => v / 255) : null);
+  const frames = [];
+  {
+    const revealed = new Map();
+    D.initial.revealed.forEach(([r, c, k]) => revealed.set(key(r, c), k));
+    let segs = [], scans = [], decoded = [], eve = null;
+    for (const [k, v] of revealed) if (v === "EVE") eve = k.split(",").map(Number);
+    const push = (pos, battery, scansLeft, after) => frames.push({
+      pos, battery, scansLeft, revealed: new Map(revealed), segs, scans, decoded, eve,
+      belief: decode(after.belief), top: after.top, topP: after.top_p, entropy: after.entropy,
+      status: after.status, flagged: new Set(after.flagged.map(p => key(p[0], p[1]))), reliability: after.reliability,
+    });
+    push(D.initial.pos, D.initial.battery, D.initial.scans, D.initial.after);
+    STEPS.forEach(s => {
+      if (s.to[0] !== s.from[0] || s.to[1] !== s.from[1]) segs = segs.concat([[s.from, s.to, s.strategy]]);
+      s.revealed.forEach(([r, c, k]) => { revealed.set(key(r, c), k); if (k === "EVE") eve = [r, c]; });
+      if (s.scan) scans = scans.concat([s.scan]);
+      if (s.decoded) decoded = decoded.concat([s.decoded]);
+      push(s.to, s.battery[1], s.scans_left, s.after);
+    });
+  }
+  const maxEntropy = Math.max(1, ...frames.map(f => f.entropy || 0));
+
+  // ------------------------------------------------------------------ DOM
+  const $ = id => document.getElementById(id);
+  const canvas = $("map"), ctx = canvas.getContext("2d");
+  const tl = $("timeline"), tctx = tl.getContext("2d");
+  let cs = 30, ox = 22, oy = 20, dpr = 1;
+
+  $("title").textContent = "WALL-E & EVE — " + M.name;
+  const sig = M.initial_signal || {};
+  const sigParts = [];
+  if (sig.bearing_deg != null) sigParts.push("bearing " + Math.round(sig.bearing_deg) + "°");
+  if (sig.approx_pos) sigParts.push("approx. (" + sig.approx_pos.join(", ") + ")");
+  if (sig.strength != null) sigParts.push("strength " + sig.strength);
+  $("subtitle").textContent = `${ROWS}×${COLS} grid · agent ${M.agent} · initial signal: ${sigParts.join(", ") || "none"}` +
+    (M.signal_age ? ` (${Math.round(M.signal_age)} min old)` : "");
+  const O = D.outcome;
+  $("outcome").textContent = (O.success ? "✓ " : "✕ ") + O.status.replaceAll("_", " ") + " · " + O.steps + " steps";
+  $("outcome").className = "badge " + (O.success ? "ok" : "bad");
+
+  const legendItems = [...new Set(STEPS.map(s => s.strategy))];
+  $("legend").innerHTML = legendItems.map(s => `<span><i style="background:${COLORS[s]}"></i>${LABELS[s]}</span>`).join("") +
+    `<span><i style="background:${C.fog};border:1px solid #3a3935"></i>Never sensed</span>` +
+    `<span><i style="background:${C.obstacle}"></i>Debris</span>` +
+    `<span><i style="background:${C.eve};opacity:.7"></i>Belief (brighter = more likely)</span>`;
+
+  // ------------------------------------------------------------------ playback state
+  let t = 0, playing = false, speed = 1, dirty = true, lastNow = null, panelIndex = -1;
+  const BASE_MS = 560;
+  const durationOf = i => {
+    const a = STEPS[i] ? STEPS[i].action : "";
+    const mult = a === "SCAN" ? 1.9 : a === "INSPECT" ? 1.7 : a === "RECHARGE" ? 1.3 : a === "TERMINATE" ? 1.6 : 1;
+    return BASE_MS * mult / speed;
+  };
+
+  [0.5, 1, 2, 4].forEach(v => {
+    const b = document.createElement("button");
+    b.textContent = v + "×"; b.className = v === 1 ? "on" : ""; b.setAttribute("aria-pressed", v === 1);
+    b.onclick = () => { speed = v; [...$("speed").children].forEach(x => { x.className = x === b ? "on" : ""; x.setAttribute("aria-pressed", x === b); }); };
+    $("speed").appendChild(b);
+  });
+  const setPlaying = p => {
+    playing = p && N > 0;
+    if (playing && t >= N) t = 0;
+    $("play").textContent = playing ? "❚❚ Pause" : (t >= N ? "↻ Replay" : "▶ Play");
+    lastNow = null; dirty = true;
+  };
+  const seek = v => { t = Math.max(0, Math.min(N, v)); setPlaying(false); };
+  $("play").onclick = () => setPlaying(!playing);
+  $("back").onclick = () => seek(Math.ceil(t) - 1);
+  $("fwd").onclick = () => seek(Math.floor(t) + 1);
+  $("restart").onclick = () => { seek(0); setPlaying(true); };
+  ["showBelief", "showPlan", "showTruth"].forEach(id => $(id).addEventListener("change", () => (dirty = true)));
+  document.addEventListener("keydown", e => {
+    if (e.target.tagName === "INPUT") return;
+    if (e.code === "Space") { e.preventDefault(); setPlaying(!playing); }
+    else if (e.code === "ArrowRight") seek(Math.floor(t) + 1);
+    else if (e.code === "ArrowLeft") seek(Math.ceil(t) - 1);
+    else if (e.code === "Home") seek(0);
+  });
+
+  // strategy change log
+  const logButtons = D.transitions.map(([step, strat, reason]) => {
+    const b = document.createElement("button");
+    b.innerHTML = `<i style="background:${COLORS[strat] || "#888"}"></i>S${step} · ${LABELS[strat] || strat}`;
+    b.title = reason;
+    b.onclick = () => seek(step);
+    $("log").appendChild(b);
+    return { b, step };
+  });
+
+  // timeline interaction
+  const seekFromEvent = e => {
+    const rect = tl.getBoundingClientRect();
+    seek(Math.round(((e.clientX - rect.left) / rect.width) * N));
+  };
+  let dragging = false;
+  tl.addEventListener("pointerdown", e => { dragging = true; tl.setPointerCapture(e.pointerId); seekFromEvent(e); });
+  tl.addEventListener("pointermove", e => { if (dragging) seekFromEvent(e); });
+  tl.addEventListener("pointerup", () => (dragging = false));
+
+  // ------------------------------------------------------------------ sizing
+  function resize() {
+    dpr = window.devicePixelRatio || 1;
+    const avail = Math.max(260, $("stage").clientWidth - 16);
+    cs = Math.max(14, Math.floor(Math.min((avail - 26) / COLS, (620 - 26) / ROWS)));
+    ox = 22; oy = 20;
+    const w = ox + cs * COLS + 4, h = oy + cs * ROWS + 4;
+    canvas.width = w * dpr; canvas.height = h * dpr; canvas.style.width = w + "px"; canvas.style.height = h + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const tw = tl.clientWidth || 600;
+    tl.width = tw * dpr; tl.height = 50 * dpr;
+    tctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    makeFogPattern();
+    dirty = true;
+  }
+  let fogPattern = null;
+  function makeFogPattern() {
+    const p = document.createElement("canvas"); p.width = p.height = 8;
+    const g = p.getContext("2d");
+    g.fillStyle = C.fog; g.fillRect(0, 0, 8, 8);
+    g.strokeStyle = C.fogLine; g.lineWidth = 1.2;
+    g.beginPath(); g.moveTo(0, 8); g.lineTo(8, 0); g.stroke();
+    fogPattern = ctx.createPattern(p, "repeat");
+  }
+  new ResizeObserver(resize).observe($("stage"));
+
+  // ------------------------------------------------------------------ drawing helpers
+  const cx = c => ox + (c + 0.5) * cs, cy = r => oy + (r + 0.5) * cs;
+  function roundRect(g, x, y, w, h, r) {
+    g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+    g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
+  }
+  function star(x, y, R, fill, stroke) {
+    ctx.beginPath();
+    for (let i = 0; i < 10; i++) {
+      const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? R * 0.45 : R;
+      ctx.lineTo(x + rr * Math.cos(a), y + rr * Math.sin(a));
+    }
+    ctx.closePath();
+    if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.6; ctx.stroke(); }
+  }
+  function drawDock(r, c) {
+    const x = ox + c * cs, y = oy + r * cs, m = cs * 0.14;
+    ctx.strokeStyle = C.dock; ctx.lineWidth = 2; roundRect(ctx, x + m, y + m, cs - 2 * m, cs - 2 * m, cs * 0.12); ctx.stroke();
+    ctx.fillStyle = C.dock; ctx.beginPath();
+    const X = x + cs / 2, Y = y + cs / 2, s = cs * 0.2;
+    ctx.moveTo(X + s * 0.2, Y - s * 1.3); ctx.lineTo(X - s * 0.8, Y + s * 0.15); ctx.lineTo(X - s * 0.05, Y + s * 0.15);
+    ctx.lineTo(X - s * 0.25, Y + s * 1.3); ctx.lineTo(X + s * 0.8, Y - s * 0.15); ctx.lineTo(X + s * 0.05, Y - s * 0.15);
+    ctx.closePath(); ctx.fill();
+  }
+  function drawEve(x, y, alpha, pulse) {
+    ctx.save(); ctx.globalAlpha = alpha;
+    const g = ctx.createRadialGradient(x, y, cs * 0.1, x, y, cs * (0.75 + 0.15 * pulse));
+    g.addColorStop(0, "rgba(57,135,229,0.55)"); g.addColorStop(1, "rgba(57,135,229,0)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, cs * 0.9, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = "#f4f6f8"; ctx.beginPath(); ctx.ellipse(x, y, cs * 0.24, cs * 0.33, 0, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = "#0b1520"; ctx.beginPath(); ctx.ellipse(x, y - cs * 0.1, cs * 0.18, cs * 0.1, 0, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = C.eve;
+    [-1, 1].forEach(sx => { ctx.beginPath(); ctx.ellipse(x + sx * cs * 0.075, y - cs * 0.1, cs * 0.05, cs * 0.032, 0, 0, 2 * Math.PI); ctx.fill(); });
+    ctx.restore();
+  }
+  function drawWallE(x, y, dir, strategy, bob) {
+    const w = cs * 0.78, h = cs * 0.62;
+    ctx.save(); ctx.translate(x, y + bob);
+    ctx.fillStyle = "rgba(0,0,0,0.35)"; ctx.beginPath(); ctx.ellipse(0, h * 0.5, w * 0.5, h * 0.12, 0, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = C.walleDark; roundRect(ctx, -w / 2, h * 0.08, w, h * 0.36, cs * 0.07); ctx.fill();
+    ctx.strokeStyle = "#57534d"; ctx.lineWidth = 1;
+    for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.moveTo(i * w * 0.18, h * 0.1); ctx.lineTo(i * w * 0.18, h * 0.42); ctx.stroke(); }
+    ctx.fillStyle = C.walle; roundRect(ctx, -w * 0.38, -h * 0.42, w * 0.76, h * 0.56, cs * 0.06); ctx.fill();
+    ctx.fillStyle = COLORS[strategy] || "#888"; ctx.beginPath(); ctx.arc(0, -h * 0.14, cs * 0.075, 0, 2 * Math.PI); ctx.fill();
+    const ex = dir[1] * cs * 0.05, ey = dir[0] * cs * 0.035;
+    [-1, 1].forEach(sx => {
+      ctx.fillStyle = "#c3c2b7"; ctx.beginPath(); ctx.arc(sx * w * 0.17 + ex, -h * 0.6 + ey, cs * 0.115, 0, 2 * Math.PI); ctx.fill();
+      ctx.fillStyle = "#141413"; ctx.beginPath(); ctx.arc(sx * w * 0.17 + ex * 1.4, -h * 0.6 + ey * 1.4, cs * 0.05, 0, 2 * Math.PI); ctx.fill();
+    });
+    ctx.restore();
+  }
+  function arrow(x1, y1, x2, y2, color, width, dash) {
+    ctx.save(); ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = width; ctx.setLineDash(dash || []);
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.setLineDash([]);
+    const a = Math.atan2(y2 - y1, x2 - x1), s = Math.max(6, cs * 0.28);
+    ctx.beginPath(); ctx.moveTo(x2, y2); ctx.lineTo(x2 - s * Math.cos(a - 0.4), y2 - s * Math.sin(a - 0.4));
+    ctx.lineTo(x2 - s * Math.cos(a + 0.4), y2 - s * Math.sin(a + 0.4)); ctx.closePath(); ctx.fill(); ctx.restore();
+  }
+
+  // ------------------------------------------------------------------ map render
+  function drawMap(now) {
+    const i = Math.min(Math.floor(t), N), f = t - i;
+    const A = frames[i], B = frames[Math.min(i + 1, N)], s = i < N ? STEPS[i] : null;
+    const moving = s && f > 0, e = ease(f);
+    const W = ox + cs * COLS + 4, H = oy + cs * ROWS + 4;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = C.page; ctx.fillRect(0, 0, W, H);
+
+    // axis labels
+    ctx.fillStyle = C.label; ctx.font = `${Math.max(9, cs * 0.3)}px system-ui`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    for (let c = 0; c < COLS; c++) ctx.fillText(c, cx(c), oy / 2);
+    ctx.textAlign = "right";
+    for (let r = 0; r < ROWS; r++) ctx.fillText(r, ox - 5, cy(r));
+
+    // fog, then sensed cells (new cells fade in while the step plays)
+    ctx.fillStyle = fogPattern; ctx.fillRect(ox, oy, cs * COLS, cs * ROWS);
+    const visited = new Set([key(...M.start)]);
+    A.segs.forEach(([, b]) => visited.add(key(b[0], b[1])));
+    const truth = $("showTruth").checked;
+    const paintCell = (r, c, kind, alpha) => {
+      ctx.globalAlpha = alpha;
+      const x = ox + c * cs, y = oy + r * cs;
+      if (kind === "OBSTACLE") {
+        ctx.fillStyle = C.obstacle; ctx.fillRect(x, y, cs, cs);
+        ctx.fillStyle = C.obstacleTop; ctx.fillRect(x + 2, y + 2, cs - 4, cs * 0.22);
+      } else {
+        ctx.fillStyle = visited.has(key(r, c)) ? C.visited : C.free; ctx.fillRect(x, y, cs, cs);
+      }
+      ctx.globalAlpha = 1;
+    };
+    for (const [k, kind] of A.revealed) { const [r, c] = k.split(",").map(Number); paintCell(r, c, kind, 1); }
+    if (moving) for (const [k, kind] of B.revealed) if (!A.revealed.has(k)) { const [r, c] = k.split(",").map(Number); paintCell(r, c, kind, e); }
+    if (truth) D.truth.obstacles.forEach(([r, c]) => {
+      if (!A.revealed.has(key(r, c))) { ctx.strokeStyle = C.obstacleTop; ctx.lineWidth = 1.5; ctx.setLineDash([3, 3]);
+        ctx.strokeRect(ox + c * cs + 3, oy + r * cs + 3, cs - 6, cs - 6); ctx.setLineDash([]); }
+    });
+
+    // belief overlay: brightness tracks probability relative to uniform, so a vague belief
+    // looks faint and a confident one bright (cross-fades to the next belief while the step plays)
+    if ($("showBelief").checked && A.belief) {
+      const bA = A.belief, bB = moving && B.belief ? B.belief : null, cells = ROWS * COLS;
+      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+        const k = r * COLS + c;
+        const pA = bA[k] * (A.topP || 0), p = bB ? lerp(pA, bB[k] * (B.topP || 0), e) : pA;
+        const rel = p * cells;  // 1 = uniform
+        if (rel < 0.3) continue;
+        ctx.fillStyle = `rgba(57,135,229,${(0.72 * Math.pow(Math.min(1, rel / 12), 0.7)).toFixed(3)})`;
+        ctx.fillRect(ox + c * cs + 1, oy + r * cs + 1, cs - 2, cs - 2);
+      }
+    }
+
+    // grid
+    ctx.strokeStyle = C.grid; ctx.lineWidth = 1; ctx.beginPath();
+    for (let c = 0; c <= COLS; c++) { ctx.moveTo(ox + c * cs, oy); ctx.lineTo(ox + c * cs, oy + ROWS * cs); }
+    for (let r = 0; r <= ROWS; r++) { ctx.moveTo(ox, oy + r * cs); ctx.lineTo(ox + COLS * cs, oy + r * cs); }
+    ctx.stroke();
+
+    M.docks.forEach(([r, c]) => drawDock(r, c));
+    ctx.strokeStyle = C.text; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.6;
+    ctx.beginPath(); ctx.arc(cx(M.start[1]), cy(M.start[0]), cs * 0.38, 0, 2 * Math.PI); ctx.stroke(); ctx.globalAlpha = 1;
+
+    // older scans: measured range rings
+    A.scans.forEach((sc, j) => {
+      ctx.save(); ctx.strokeStyle = C.scan; ctx.globalAlpha = j === A.scans.length - 1 ? 0.55 : 0.25; ctx.lineWidth = 1.4; ctx.setLineDash([5, 5]);
+      ctx.beginPath(); ctx.arc(cx(sc.pos[1]), cy(sc.pos[0]), sc.distance * cs, 0, 2 * Math.PI); ctx.stroke(); ctx.restore();
+    });
+    // decoded beacon bearings (persist, dashed)
+    A.decoded.forEach(d => {
+      const flagged = A.flagged.has(key(d.pos[0], d.pos[1]));
+      arrow(cx(d.pos[1]), cy(d.pos[0]), cx(d.pos[1] + d.vector[1] * d.distance), cy(d.pos[0] + d.vector[0] * d.distance),
+        flagged ? "rgba(208,59,59,0.55)" : "rgba(217,89,38,0.55)", 1.6, [4, 4]);
+    });
+
+    // path segments, plus the segment being driven right now
+    ctx.lineCap = "round"; ctx.lineWidth = Math.max(3, cs * 0.16);
+    A.segs.forEach(([a, b, st]) => {
+      ctx.strokeStyle = COLORS[st] || "#888"; ctx.beginPath(); ctx.moveTo(cx(a[1]), cy(a[0])); ctx.lineTo(cx(b[1]), cy(b[0])); ctx.stroke();
+    });
+    let px = cx(A.pos[1]), py = cy(A.pos[0]), dir = [0, 1];
+    if (s) {
+      const dr = s.to[0] - s.from[0], dc = s.to[1] - s.from[1];
+      if (dr || dc) dir = [dr, dc];
+      else if (s.plan && s.plan.length > 1) dir = [s.plan[1][0] - s.from[0], s.plan[1][1] - s.from[1]];
+    }
+    if (moving && (s.to[0] !== s.from[0] || s.to[1] !== s.from[1])) {
+      const tx = lerp(cx(s.from[1]), cx(s.to[1]), e), ty = lerp(cy(s.from[0]), cy(s.to[0]), e);
+      ctx.strokeStyle = COLORS[s.strategy] || "#888"; ctx.beginPath(); ctx.moveTo(cx(s.from[1]), cy(s.from[0])); ctx.lineTo(tx, ty); ctx.stroke();
+      px = tx; py = ty;
+    } else if (moving && s.collision) {
+      px += Math.sin(f * Math.PI * 6) * cs * 0.06;
+    }
+
+    // planned route to the current goal
+    if ($("showPlan").checked && s && s.plan && s.plan.length > 1 && s.action !== "TERMINATE") {
+      const col = COLORS[s.strategy] || "#888";
+      ctx.save(); ctx.strokeStyle = col; ctx.globalAlpha = 0.85; ctx.lineWidth = 1.6; ctx.setLineDash([3, 4]);
+      ctx.beginPath(); ctx.moveTo(px, py);
+      s.plan.slice(1).forEach(p => ctx.lineTo(cx(p[1]), cy(p[0]))); ctx.stroke(); ctx.setLineDash([]);
+      const g = s.plan[s.plan.length - 1];
+      ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx(g[1]), cy(g[0]), cs * 0.36, 0, 2 * Math.PI); ctx.stroke(); ctx.restore();
+    }
+
+    // beacons: hollow when sighted, filled once decoded, crossed out when judged spoofed
+    const decodedSet = new Set(A.decoded.map(d => key(d.pos[0], d.pos[1])));
+    const drawBeacons = (F, alpha) => {
+      for (const [k, kind] of F.revealed) {
+        if (kind !== "CLUE") continue;
+        if (alpha < 1 && A.revealed.has(k)) continue;
+        const [r, c] = k.split(",").map(Number), x = cx(c), y = cy(r);
+        ctx.save(); ctx.globalAlpha = alpha;
+        if (decodedSet.has(k)) {
+          ctx.shadowColor = C.decoded; ctx.shadowBlur = cs * 0.5; star(x, y, cs * 0.34, C.decoded, null); ctx.shadowBlur = 0;
+        } else star(x, y, cs * 0.34 * (alpha < 1 ? 0.6 + 0.4 * alpha : 1), null, C.beacon);
+        if (A.flagged.has(k)) {
+          ctx.strokeStyle = C.critical; ctx.lineWidth = 3; const m = cs * 0.3;
+          ctx.beginPath(); ctx.moveTo(x - m, y - m); ctx.lineTo(x + m, y + m); ctx.moveTo(x + m, y - m); ctx.lineTo(x - m, y + m); ctx.stroke();
+          ctx.fillStyle = C.critical; ctx.font = `bold ${Math.max(9, cs * 0.3)}px system-ui`; ctx.textAlign = "center";
+          ctx.fillText("SPOOFED", x, y + cs * 0.62);
+        }
+        ctx.restore();
+      }
+    };
+    drawBeacons(A, 1);
+    if (moving) drawBeacons(B, e);
+    if (truth) D.truth.clues.forEach(cl => {
+      if (A.revealed.has(key(cl.pos[0], cl.pos[1]))) return;
+      ctx.save(); ctx.setLineDash([3, 3]); star(cx(cl.pos[1]), cy(cl.pos[0]), cs * 0.32, null, "#8f8d86"); ctx.restore();
+      ctx.fillStyle = "#8f8d86"; ctx.font = `${Math.max(9, cs * 0.27)}px system-ui`; ctx.textAlign = "center";
+      ctx.fillText(cl.type === "decoy" ? "decoy (unfound)" : "unfound", cx(cl.pos[1]), cy(cl.pos[0]) + cs * 0.6);
+    });
+
+    // best guess crosshair
+    const topCell = moving && f > 0.5 ? B.top : A.top;
+    if (topCell && $("showBelief").checked) {
+      const x = cx(topCell[1]), y = cy(topCell[0]), m = cs * 0.42;
+      ctx.strokeStyle = "#86b6ef"; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(x - m, y); ctx.lineTo(x - m * 0.4, y); ctx.moveTo(x + m * 0.4, y); ctx.lineTo(x + m, y);
+      ctx.moveTo(x, y - m); ctx.lineTo(x, y - m * 0.4); ctx.moveTo(x, y + m * 0.4); ctx.lineTo(x, y + m); ctx.stroke();
+    }
+
+    // scan ripple + new range ring; beacon decoding arrow; recharge glow
+    if (moving && s.action === "SCAN" && s.scan) {
+      const R = s.scan.distance * cs;
+      for (let k = 0; k < 3; k++) {
+        const ff = Math.min(1, Math.max(0, f * 1.4 - k * 0.18));
+        if (ff <= 0 || ff >= 1) continue;
+        ctx.strokeStyle = `rgba(25,158,112,${(1 - ff).toFixed(3)})`; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(px, py, ff * R, 0, 2 * Math.PI); ctx.stroke();
+      }
+      ctx.save(); ctx.globalAlpha = Math.min(1, Math.max(0, (f - 0.45) * 2)); ctx.strokeStyle = C.scan; ctx.lineWidth = 2.2; ctx.setLineDash([6, 4]);
+      ctx.beginPath(); ctx.arc(px, py, R, 0, 2 * Math.PI); ctx.stroke(); ctx.restore();
+    }
+    if (moving && s.action === "INSPECT" && s.decoded) {
+      const d = s.decoded, grow = Math.min(1, f * 1.5);
+      ctx.save(); ctx.strokeStyle = C.decoded; ctx.globalAlpha = 1 - f; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(cx(d.pos[1]), cy(d.pos[0]), cs * (0.3 + f * 0.9), 0, 2 * Math.PI); ctx.stroke(); ctx.restore();
+      arrow(cx(d.pos[1]), cy(d.pos[0]), cx(d.pos[1] + d.vector[1] * d.distance * grow), cy(d.pos[0] + d.vector[0] * d.distance * grow), C.decoded, 2.6);
+    }
+    if (moving && s.action === "RECHARGE") {
+      ctx.save(); ctx.strokeStyle = C.dock; ctx.globalAlpha = 0.9 * (1 - f); ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(px, py, cs * (0.4 + 0.5 * f), 0, 2 * Math.PI); ctx.stroke(); ctx.restore();
+    }
+
+    // EVE: only once sighted (or in the evaluation view at the end)
+    const pulse = REDUCED ? 0.5 : 0.5 + 0.5 * Math.sin(now / 300);
+    if (A.eve) drawEve(cx(A.eve[1]), cy(A.eve[0]), 1, pulse);
+    else if (moving && B.eve) drawEve(cx(B.eve[1]), cy(B.eve[0]), e, pulse);
+    else if (truth) {
+      drawEve(cx(D.truth.eve[1]), cy(D.truth.eve[0]), 0.9, pulse);
+      ctx.fillStyle = C.text; ctx.font = `bold ${Math.max(9, cs * 0.28)}px system-ui`; ctx.textAlign = "center";
+      ctx.fillText("EVE (true position)", cx(D.truth.eve[1]), cy(D.truth.eve[0]) - cs * 0.62);
+    }
+
+    const bob = playing && !REDUCED ? Math.sin(now / 90) * cs * 0.02 : 0;
+    drawWallE(px, py, dir, s ? s.strategy : (STEPS[N - 1] || {}).strategy, bob);
+
+    // strategy change toast
+    const prev = i > 0 ? STEPS[i - 1].strategy : null;
+    if (s && s.strategy !== prev && f < 0.85) {
+      const label = "→ " + (LABELS[s.strategy] || s.strategy);
+      ctx.font = `bold ${Math.max(10, cs * 0.34)}px system-ui`;
+      const tw = ctx.measureText(label).width + 14, th = Math.max(18, cs * 0.6);
+      let bx = Math.min(Math.max(px - tw / 2, ox), ox + COLS * cs - tw), by = py - cs * 1.25 - th / 2;
+      if (by < oy) by = py + cs * 0.7;
+      ctx.save(); ctx.globalAlpha = f > 0.6 ? (0.85 - f) / 0.25 : 1;
+      ctx.fillStyle = "#1d1c1a"; ctx.strokeStyle = COLORS[s.strategy] || "#888"; ctx.lineWidth = 2;
+      roundRect(ctx, bx, by, tw, th, th / 2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = C.text; ctx.textAlign = "left"; ctx.textBaseline = "middle"; ctx.fillText(label, bx + 7, by + th / 2);
+      ctx.restore();
+    }
+  }
+
+  // ------------------------------------------------------------------ timeline render
+  function drawTimeline() {
+    const w = tl.clientWidth || 600, h = 50;
+    tctx.clearRect(0, 0, w, h);
+    if (!N) return;
+    const bw = w / N, top = 16, bh = 16;
+    STEPS.forEach((s, k) => {
+      tctx.fillStyle = COLORS[s.strategy] || "#888";
+      tctx.fillRect(k * bw, top, Math.max(1, bw - (bw > 4 ? 1 : 0)), bh);
+      const x = k * bw + bw / 2;
+      if (s.action === "SCAN") { tctx.fillStyle = "#199e70"; tctx.beginPath(); tctx.arc(x, 8, 3.5, 0, 2 * Math.PI); tctx.fill(); }
+      if (s.action === "INSPECT") { tctx.fillStyle = "#d95926"; tctx.fillRect(x - 3, 5, 6, 6); }
+      if (s.action === "RECHARGE") { tctx.fillStyle = "#0ca30c"; tctx.fillRect(x - 1.5, 3, 3, 10); }
+      if (s.events.some(ev => ev.includes("rejected as spoofed"))) {
+        tctx.strokeStyle = "#d03b3b"; tctx.lineWidth = 2; tctx.beginPath();
+        tctx.moveTo(x - 4, 4); tctx.lineTo(x + 4, 12); tctx.moveTo(x + 4, 4); tctx.lineTo(x - 4, 12); tctx.stroke();
+      }
+      if (s.events.some(ev => ev.includes("EVE sighted"))) { tctx.fillStyle = "#f0efec"; tctx.beginPath(); tctx.arc(x, 8, 3.5, 0, 2 * Math.PI); tctx.fill(); }
+    });
+    const x = (t / N) * w;
+    tctx.fillStyle = "#f0efec"; tctx.fillRect(x - 1, 2, 2, h - 4);
+    tctx.fillStyle = "#8f8d86"; tctx.font = "10.5px system-ui"; tctx.textAlign = "left"; tctx.textBaseline = "alphabetic";
+    tctx.fillText("step 0", 0, h - 3); tctx.textAlign = "right"; tctx.fillText("step " + N, w, h - 3);
+  }
+
+  // ------------------------------------------------------------------ side panel
+  function updatePanel() {
+    const i = Math.min(Math.floor(t), N), f = t - i;
+    const A = frames[i], B = frames[Math.min(i + 1, N)], s = i < N ? STEPS[i] : null;
+    const battery = s && f > 0 ? lerp(A.battery, B.battery, ease(f)) : A.battery;
+    $("batteryBar").style.width = (100 * battery / (M.capacity || 100)).toFixed(1) + "%";
+    $("batteryBar").style.background = battery < 0.25 * (M.capacity || 100) ? "#d03b3b" : "var(--walle)";
+    $("batteryVal").textContent = `${battery.toFixed(0)} / ${M.capacity}`;
+    $("counter").textContent = `step ${Math.min(Math.floor(t), N)} / ${N}`;
+    if (panelIndex === i) return;
+    panelIndex = i;
+
+    if (s) {
+      $("stepNo").textContent = `Step ${s.step} of ${N}`;
+      $("posLabel").textContent = `at (${s.from[0]}, ${s.from[1]})`;
+      $("action").textContent = s.action.replaceAll("_", " ");
+      $("chip").innerHTML = `<i style="background:${COLORS[s.strategy]}"></i><span>${LABELS[s.strategy] || s.strategy}</span>`;
+      $("reason").textContent = s.reason;
+      $("events").innerHTML = s.events.map(ev => {
+        const cls = /spoofed|Bumped/.test(ev) ? "alert" : /EVE sighted|Rendezvous|Recharged/.test(ev) ? "good" : "";
+        return `<li class="${cls}">${ev.replace(/[<>&]/g, ch => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" })[ch])}</li>`;
+      }).join("");
+    } else {
+      $("stepNo").textContent = `Mission end · ${N} steps`;
+      $("posLabel").textContent = `at (${A.pos[0]}, ${A.pos[1]})`;
+      $("action").textContent = O.status.replaceAll("_", " ");
+      $("chip").innerHTML = `<i style="background:${O.success ? "#0ca30c" : "#d03b3b"}"></i><span>${O.conclusion.replaceAll("_", " ")}</span>`;
+      $("reason").textContent = O.recommendation;
+      $("events").innerHTML = "";
+    }
+
+    const total = M.scan_budget || 0;
+    $("pips").innerHTML = Array.from({ length: total }, (_, k) => `<b class="${k < A.scansLeft ? "on" : ""}"></b>`).join("");
+    $("scanVal").textContent = `${A.scansLeft} left`;
+    $("topBar").style.width = (100 * (A.topP || 0)).toFixed(1) + "%";
+    $("topVal").textContent = A.top ? `(${A.top[0]}, ${A.top[1]}) ${(100 * (A.topP || 0)).toFixed(0)}%` : "–";
+    $("entBar").style.width = (100 * (A.entropy || 0) / maxEntropy).toFixed(1) + "%";
+    $("entVal").textContent = `${(A.entropy || 0).toFixed(1)} bits`;
+    const pa = (A.status && A.status.ACTIVE) || 0, pd = (A.status && A.status.DORMANT) || 0;
+    $("pa").style.width = (100 * pa).toFixed(1) + "%"; $("pd").style.width = (100 * pd).toFixed(1) + "%";
+    $("statusVal").textContent = pa >= pd ? `active ${(100 * pa).toFixed(0)}%` : `dormant ${(100 * pd).toFixed(0)}%`;
+    const rel = Object.entries(A.reliability || {});
+    $("beacons").innerHTML = rel.length ? rel.map(([k, p]) => {
+      const spoof = A.flagged.has(k);
+      return `<div class="row"><span>Beacon (${k.replace(",", ", ")})</span><span class="${spoof ? "spoof" : ""}">${spoof ? "✕ spoofed · " : ""}P(genuine) ${(100 * p).toFixed(0)}%</span></div>`;
+    }).join("") : `<div class="row"><span>No beacon decoded yet</span><span></span></div>`;
+
+    let current = null;
+    logButtons.forEach(lb => { if (lb.step <= (s ? s.step : N)) current = lb; });
+    logButtons.forEach(lb => lb.b.classList.toggle("on", lb === current));
+
+    const ended = t >= N;
+    $("showTruth").disabled = !ended;
+    $("truthLabel").classList.toggle("disabled", !ended);
+    if (!ended && $("showTruth").checked) $("showTruth").checked = false;
+    const v = $("verdict");
+    v.classList.toggle("show", ended);
+    v.classList.toggle("bad", !O.success);
+    if (ended) {
+      const loc = `(${O.map_estimate[0]}, ${O.map_estimate[1]})`;
+      v.innerHTML = `<b>${O.success ? "Rendezvous complete" : "Mission ended: " + O.status.replaceAll("_", " ")} — ${O.conclusion.replaceAll("_", " ")}</b>` +
+        `<p>EVE location ${loc} (P=${O.map_probability.toFixed(2)}) · status ${O.status_estimate} (${(100 * O.status_confidence).toFixed(0)}% confidence) · battery left ${O.battery_remaining} · ${O.recharges} recharge(s)</p>` +
+        `<p><b style="font-size:12.5px">Recommended next step:</b> ${O.recommendation}</p>`;
+    }
+  }
+
+  // ------------------------------------------------------------------ loop
+  function tick(now) {
+    if (playing) {
+      if (lastNow !== null) {
+        let dt = now - lastNow;
+        while (dt > 0 && t < N) {
+          const i = Math.floor(t), dur = durationOf(i), remaining = (i + 1 - t) * dur;
+          if (dt >= remaining) { t = i + 1; dt -= remaining; } else { t += dt / dur; dt = 0; }
+        }
+        if (t >= N) { t = N; setPlaying(false); }
+      }
+      lastNow = now;
+    }
+    const animating = playing || (frames[Math.min(Math.floor(t), N)].eve || $("showTruth").checked);
+    if (playing || dirty || animating) {
+      drawMap(now); drawTimeline(); updatePanel(); dirty = false;
+    }
+    requestAnimationFrame(tick);
+  }
+  resize();
+  const deepLink = /step=(\d+)/.exec(location.hash);
+  if (deepLink) t = Math.min(N, Number(deepLink[1]));
+  updatePanel();
+  requestAnimationFrame(tick);
+  if (D.autoplay && !REDUCED && !deepLink) setTimeout(() => setPlaying(true), 700);
+})();
+</script>
+</body>
+</html>
