@@ -5,7 +5,7 @@
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 ![Status](https://img.shields.io/badge/Status-Completed%20%26%20Verified-success.svg)
 
-An explainable, classical AI autonomous search and exploration agent inspired by Pixar's **WALL-E searching for EVE** across a debris-laden wasteland grid. Built for **Vinnovate IT Round 1 Recruitment (AIML Task 2: "WALL-E and EVE's Signal")**.
+An explainable, classical AI autonomous search and exploration agent inspired by Pixar's **WALL-E searching for EVE** across a debris-laden wasteland grid. 
 
 The agent features **strict information boundaries**, **Bayesian belief updating** over both location and operational status, **$A^*$ pathfinding with reachability awareness**, **energy-budgeted docking and turn-back policies**, **spoofed/decoy beacon rejection**, **interactive animated canvas replay**, and **reproducible multi-seed generalization benchmarks**.
 
