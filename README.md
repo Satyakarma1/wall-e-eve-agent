@@ -2,8 +2,12 @@
 
 ![Python Version](https://img.shields.io/badge/Python-3.11.9-blue.svg)
 ![Tests](https://img.shields.io/badge/Tests-52%2F52%20Passing-brightgreen.svg)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://satyakarma1-wall-e-eve-agent-app-2k3fh9.streamlit.app/)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 ![Status](https://img.shields.io/badge/Status-Completed%20%26%20Verified-success.svg)
+
+> 🚀 **Live Interactive Web Application**: Experience the agent in real time with interactive canvas replay, live telemetry KPIs, step scrubbing, and generalization benchmarks:  
+> **👉 [https://satyakarma1-wall-e-eve-agent-app-2k3fh9.streamlit.app/](https://satyakarma1-wall-e-eve-agent-app-2k3fh9.streamlit.app/)**
 
 An explainable, classical AI autonomous search and exploration agent inspired by Pixar's **WALL-E searching for EVE** across a debris-laden wasteland grid. 
 
@@ -33,11 +37,11 @@ The project satisfies all 5 core requirements stipulated in the recruitment brie
 
 | # | Task Requirement | Code Implementation | Verification / Proof |
 | :-: | :--- | :--- | :--- |
-| **1** | **Configurable Environment & Step Observations** | [`src/environment.py`](file:///c:/VS%20CODE/Vinnovate%20IT/wall-e-eve-agent/src/environment.py): `GridEnvironment.from_dict()`, `step()`, `Observation`. Enforces private hidden target `_eve_pos` and `_eve_status` behind public `MissionBriefing`. | `tests/test_environment.py::test_briefing_contains_no_hidden_state`, `test_observation_does_not_leak_eve_position` |
-| **2** | **Agent Movement, Scanning & Recharging** | [`src/agent.py`](file:///c:/VS%20CODE/Vinnovate%20IT/wall-e-eve-agent/src/agent.py): `HierarchicalAgent.decide()`. Dynamic planning for cardinal moves, clue inspection, triangulation radar scans, and energy-aware return to solar charging docks. | `tests/test_simulation.py::test_agent_turns_back_and_recharges`, `test_scans_are_never_repeated_from_the_same_spot` |
-| **3** | **Belief Updating: Location AND Status** | [`src/belief.py`](file:///c:/VS%20CODE/Vinnovate%20IT/wall-e-eve-agent/src/belief.py): Joint posterior $P(\text{loc}, \text{status})$ in log space. Infers EVE's status (`ACTIVE` vs `DORMANT`) via pulse radar amplitude vs range ([`src/signal_model.py`](file:///c:/VS%20CODE/Vinnovate%20IT/wall-e-eve-agent/src/signal_model.py)). Decoy-robust mixture with exact $P(\text{genuine})$. | `tests/test_belief.py::test_scan_strength_infers_dormant_status`, `test_decoy_cannot_erase_true_location_and_gets_flagged` |
-| **4** | **Full Trace of Actions, Observations & Reasons** | [`src/simulation.py`](file:///c:/VS%20CODE/Vinnovate%20IT/wall-e-eve-agent/src/simulation.py), [`src/frames.py`](file:///c:/VS%20CODE/Vinnovate%20IT/wall-e-eve-agent/src/frames.py): Per-step trace JSON recording timestamp, observation, strategy state, battery level, entropy, top candidate coordinate/probability, and human-readable explanation. | Exported to `outputs/<mission>_trace.json`; tested in `tests/test_simulation.py::test_trace_is_consistent_with_actual_path` |
-| **5** | **Final Mission Report & Actionable Recommendation** | [`src/report.py`](file:///c:/VS%20CODE/Vinnovate%20IT/wall-e-eve-agent/src/report.py): Generates structured Markdown mission report with conclusion verdict, chronological evidence list, confidence metric, and tactical next-step recommendation. | Exported to `outputs/<mission>_report.md`; tested in `tests/test_simulation.py::test_report_has_evidence_inference_confidence_and_next_step` |
+| **1** | **Configurable Environment & Step Observations** | [`src/environment.py`](src/environment.py): `GridEnvironment.from_dict()`, `step()`, `Observation`. Enforces private hidden target `_eve_pos` and `_eve_status` behind public `MissionBriefing`. | `tests/test_environment.py::test_briefing_contains_no_hidden_state`, `test_observation_does_not_leak_eve_position` |
+| **2** | **Agent Movement, Scanning & Recharging** | [`src/agent.py`](src/agent.py): `HierarchicalAgent.decide()`. Dynamic planning for cardinal moves, clue inspection, triangulation radar scans, and energy-aware return to solar charging docks. | `tests/test_simulation.py::test_agent_turns_back_and_recharges`, `test_scans_are_never_repeated_from_the_same_spot` |
+| **3** | **Belief Updating: Location AND Status** | [`src/belief.py`](src/belief.py): Joint posterior $P(\text{loc}, \text{status})$ in log space. Infers EVE's status (`ACTIVE` vs `DORMANT`) via pulse radar amplitude vs range ([`src/signal_model.py`](src/signal_model.py)). Decoy-robust mixture with exact $P(\text{genuine})$. | `tests/test_belief.py::test_scan_strength_infers_dormant_status`, `test_decoy_cannot_erase_true_location_and_gets_flagged` |
+| **4** | **Full Trace of Actions, Observations & Reasons** | [`src/simulation.py`](src/simulation.py), [`src/frames.py`](src/frames.py): Per-step trace JSON recording timestamp, observation, strategy state, battery level, entropy, top candidate coordinate/probability, and human-readable explanation. | Exported to `outputs/<mission>_trace.json`; tested in `tests/test_simulation.py::test_trace_is_consistent_with_actual_path` |
+| **5** | **Final Mission Report & Actionable Recommendation** | [`src/report.py`](src/report.py): Generates structured Markdown mission report with conclusion verdict, chronological evidence list, confidence metric, and tactical next-step recommendation. | Exported to `outputs/<mission>_report.md`; tested in `tests/test_simulation.py::test_report_has_evidence_inference_confidence_and_next_step` |
 
 ---
 
@@ -244,7 +248,7 @@ pip install -r requirements.txt
 
 ## 🚀 CLI Usage & Dashboard Execution
 
-The production runner [`main.py`](file:///c:/VS%20CODE/Vinnovate%20IT/wall-e-eve-agent/main.py) provides full CLI control:
+The production runner [`main.py`](main.py) provides full CLI control:
 
 ### 1. Run Standard Mission
 Executes the default mission scenario, prints terminal traces, and saves summary PNG, animated GIF, JSON trace, and Markdown report:
@@ -283,10 +287,12 @@ Runs multi-trial statistical experiments across seeded random missions comparing
 ```
 
 ### 5. Launch Interactive Streamlit Dashboard
-Launches the full interactive UI featuring KPIs, preset selectors, interactive animated canvas player, live trace table, and benchmark charts:
+You can run the dashboard locally:
 ```powershell
 .\.venv\Scripts\python.exe -m streamlit run app.py
 ```
+Or interact with the **Live Cloud Deployment**:  
+🌐 **[https://satyakarma1-wall-e-eve-agent-app-2k3fh9.streamlit.app/](https://satyakarma1-wall-e-eve-agent-app-2k3fh9.streamlit.app/)**
 
 ---
 
